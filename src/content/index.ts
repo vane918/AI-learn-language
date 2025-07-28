@@ -129,6 +129,12 @@ function processTextSelection(event: MouseEvent) {
     return;
   }
   
+  // 如果事件目标是翻译卡片内部元素，忽略
+  if (translationCard && translationCard.contains(event.target as Node)) {
+    console.log('❌ [processTextSelection] 事件目标是翻译卡片内部元素，忽略');
+    return;
+  }
+  
   // 获取当前选择
   const selection = window.getSelection();
   
@@ -746,6 +752,7 @@ function positionCardBySelection() {
 // 更新卡片内容
 function updateCardContent(content: string, isLoading: boolean) {
   console.log('🔍 updateCardContent:', content);
+  console.log('🔍 isLoading:', isLoading);
   if (!translationCard) return;
   
   const originalTextElem = translationCard.querySelector('.ai-original-text');
@@ -761,13 +768,13 @@ function updateCardContent(content: string, isLoading: boolean) {
   // 更新保存按钮
   const saveBtn = translationCard.querySelector('.ai-save-btn') as HTMLButtonElement;
   if (saveBtn) {
-    saveBtn.disabled = isLoading;
+    saveBtn.disabled = false;
   }
   
   // 更新朗读按钮
   const speakBtn = translationCard.querySelector('.ai-speak-btn') as HTMLButtonElement;
   if (speakBtn) {
-    speakBtn.disabled = isLoading;
+    speakBtn.disabled = false;
   }
 }
 
@@ -813,9 +820,6 @@ function handleDocumentClick(event: Event) {
   console.log('🔍 [handleDocumentClick] 当前 isCardVisible:', isCardVisible);
   console.log('🔍 [handleDocumentClick] translationCard 存在:', !!translationCard);
   console.log('🔍 [handleDocumentClick] translationIcon 存在:', !!translationIcon);
-  
-  // 打印调用栈，帮助理解是什么触发了这个事件
-  console.log('🔍 [handleDocumentClick] 调用栈:', new Error().stack);
   
   if (ignoreNextClick) {
     ignoreNextClick = false;
@@ -911,15 +915,130 @@ async function handleSaveWord() {
 
 // 朗读单词
 function handleSpeak() {
-  if (!selectedText) return;
+  console.log('🔊 [handleSpeak] 播放按钮被点击');
+  console.log('🔊 [handleSpeak] 当前选中文本:', selectedText);
   
-  try {
-    const utterance = new SpeechSynthesisUtterance(selectedText);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.8;
-    speechSynthesis.speak(utterance);
-  } catch (error) {
-    console.error('Speech synthesis error:', error);
+  if (!selectedText) {
+    console.log('❌ [handleSpeak] 没有选中文本，无法播放');
+    return;
+  }
+  
+  // 直接使用 Web Speech API，因为 Chrome TTS 在 content script 中不可用
+  console.log('🔊 [handleSpeak] 使用 Web Speech API 播放');
+  playTextWithWebSpeech(selectedText);
+}
+
+// 使用 Web Speech API 播放文本
+function playTextWithWebSpeech(text: string) {
+  console.log('🔊 [playTextWithWebSpeech] 开始播放文本:', text);
+  
+  if (!('speechSynthesis' in window)) {
+    console.error('🔊 [playTextWithWebSpeech] 浏览器不支持 Speech Synthesis');
+    return;
+  }
+
+  // 停止当前播放
+  speechSynthesis.cancel();
+  
+  // 等待一小段时间确保之前的播放已停止
+  setTimeout(() => {
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // 设置语音参数
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      // 添加事件监听器
+      utterance.onstart = () => {
+        console.log('🔊 [playTextWithWebSpeech] 播放开始');
+      };
+
+      utterance.onend = () => {
+        console.log('🔊 [playTextWithWebSpeech] 播放结束');
+      };
+
+      utterance.onerror = (event) => {
+        console.error('🔊 [playTextWithWebSpeech] 播放错误:', event);
+        console.error('🔊 [playTextWithWebSpeech] 错误详情:', {
+          error: event.error,
+          type: event.type,
+          charIndex: event.charIndex,
+          elapsedTime: event.elapsedTime
+        });
+      };
+
+      utterance.onpause = () => {
+        console.log('🔊 [playTextWithWebSpeech] 播放暂停');
+      };
+
+      utterance.onresume = () => {
+        console.log('🔊 [playTextWithWebSpeech] 播放恢复');
+      };
+
+      // 检查语音合成是否可用
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+      }
+
+      console.log('🔊 [playTextWithWebSpeech] 调用 speechSynthesis.speak()');
+      speechSynthesis.speak(utterance);
+      
+      // 检查是否开始播放
+      setTimeout(() => {
+        if (speechSynthesis.speaking) {
+          console.log('🔊 [playTextWithWebSpeech] 确认正在播放');
+        } else {
+          console.warn('🔊 [playTextWithWebSpeech] 播放可能被阻止或失败');
+          // 尝试用户交互提示
+          showAudioPermissionHint();
+        }
+      }, 100);
+      
+    } catch (error) {
+      console.error('🔊 [playTextWithWebSpeech] 播放异常:', error);
+    }
+  }, 100);
+}
+
+// 显示音频权限提示
+function showAudioPermissionHint() {
+  console.log('🔊 [showAudioPermissionHint] 显示音频权限提示');
+  
+  // 在翻译卡片中显示提示
+  if (translationCard) {
+    const existingHint = translationCard.querySelector('.audio-hint');
+    if (existingHint) {
+      existingHint.remove();
+    }
+    
+    const hint = document.createElement('div');
+    hint.className = 'audio-hint';
+    hint.style.cssText = `
+      margin-top: 8px;
+      padding: 6px 8px;
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #856404;
+      text-align: center;
+    `;
+    hint.textContent = '🔊 请确保浏览器允许音频播放，或检查系统音量设置';
+    
+    const cardContent = translationCard.querySelector('.ai-translation-content');
+    if (cardContent) {
+      cardContent.appendChild(hint);
+      
+      // 3秒后移除提示
+      setTimeout(() => {
+        if (hint && hint.parentNode) {
+          hint.remove();
+        }
+      }, 3000);
+    }
   }
 }
 
