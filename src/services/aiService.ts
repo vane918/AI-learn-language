@@ -134,6 +134,40 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
       }]
     }),
     responseParser: (response: any): AITranslationResponse => parseFormattedResponse(response.candidates[0].content.parts[0].text),
+  },
+
+  qwen: {
+    name: 'Qwen (通义千问)',
+    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    requestFormatter: (request: AITranslationRequest, _apiKey: string) => ({
+      model: 'qwen-mt-turbo',
+      messages: [
+        {
+          role: 'user',
+          content: request.text
+        }
+      ],
+      extra_body: {
+        translation_options: {
+          source_lang: 'auto',
+          target_lang: 'Chinese'
+        }
+      }
+    }),
+    responseParser: (response: any): AITranslationResponse => {
+      // Qwen-MT 返回的是直接的翻译结果，需要转换为我们的格式
+      const translation = response.choices[0].message.content;
+      return {
+        translation: translation,
+        wordType: '',
+        pronunciation: '',
+        explanation: '',
+        examples: []
+      };
+    },
   }
 };
 
@@ -308,19 +342,27 @@ export async function* streamTranslateWithAI(
     if (provider === 'openai') {
       requestData.stream = true;
     }
+    
+    // 处理 extra_body 参数（用于 Qwen API）
+    let finalRequestData = requestData;
+    if (requestData.extra_body) {
+      const { extra_body, ...mainBody } = requestData;
+      finalRequestData = { ...mainBody, ...extra_body };
+    }
+    
     const url = provider === 'gemini' 
       ? `${config.apiUrl}?key=${apiKey}`
       : config.apiUrl;
 
     const headers = { ...config.headers };
-    if (provider === 'openai' || provider === 'deepseek') {
+    if (provider === 'openai' || provider === 'deepseek' || provider === 'qwen') {
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
 
     const response = await fetch(url, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(requestData)
+      body: JSON.stringify(finalRequestData)
     });
 
     if (!response.ok) {
@@ -328,7 +370,7 @@ export async function* streamTranslateWithAI(
       throw new Error(`AI API request failed: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
-    if (provider === 'openai' && requestData.stream) {
+    if (provider === 'openai' && finalRequestData.stream) {
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('No reader available');
@@ -370,6 +412,8 @@ export async function* streamTranslateWithAI(
           rawContent = data.choices[0].message.content;
         } else if (provider === 'gemini') {
           rawContent = data.candidates[0].content.parts[0].text;
+        } else if (provider === 'qwen') {
+          rawContent = data.choices[0].message.content;
         }
         yield { content: rawContent, done: false };
         yield { content: '', done: true };

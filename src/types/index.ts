@@ -17,7 +17,7 @@ export interface LearningItem {
 }
 
 export interface UserSettings {
-  aiProvider: 'openai' | 'deepseek' | 'gemini';
+  aiProvider: 'openai' | 'deepseek' | 'gemini' | 'qwen';
   apiKey: string;
   language: 'zh' | 'en';
   dailyReviewLimit: number;

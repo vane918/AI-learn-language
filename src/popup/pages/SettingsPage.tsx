@@ -113,6 +113,7 @@ const SettingsPage = () => {
               <MenuItem value="openai">OpenAI (GPT)</MenuItem>
               <MenuItem value="deepseek">DeepSeek</MenuItem>
               <MenuItem value="gemini">Google Gemini</MenuItem>
+              <MenuItem value="qwen">Qwen (通义千问)</MenuItem>
             </Select>
           </FormControl>
 
@@ -166,6 +167,8 @@ const SettingsPage = () => {
             • DeepSeek: platform.deepseek.com
             <br />
             • Gemini: makersuite.google.com
+            <br />
+            • Qwen: dashscope.console.aliyun.com
           </Typography>
         </CardContent>
       </Card>
