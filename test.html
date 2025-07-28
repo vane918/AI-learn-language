@@ -6,105 +6,175 @@
     <title>AI Learn Language - Test Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .test-section {
-            margin: 20px 0;
+            margin-bottom: 30px;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 2px dashed #e9ecef;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            background: #f8f9fa;
         }
-        .highlight {
-            background-color: yellow;
-            padding: 2px 4px;
-            border-radius: 3px;
+        .test-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .test-text {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .test-text:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
         }
         .instruction {
-            background-color: #e3f2fd;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
             border-left: 4px solid #2196f3;
         }
+        .instruction strong {
+            color: #1976d2;
+        }
+        .feature-highlight {
+            background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ff9800;
+        }
+        .feature-highlight h3 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 5px 0;
+            color: #5d4037;
+        }
+        .feature-list li:before {
+            content: "✨ ";
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
-    <h1>🚀 AI Learn Language - 划词翻译测试页面</h1>
-    
-    <div class="instruction">
-        <h3>📋 使用说明：</h3>
-        <ol>
-            <li>确保已安装并启用 AI Learn Language 扩展</li>
-            <li>在扩展设置中配置 API Key（OpenAI、DeepSeek 或 Gemini）</li>
-            <li>选择下面的英文文本，应该会弹出翻译卡片</li>
-            <li>如果没有弹出，请检查控制台错误信息</li>
-        </ol>
-    </div>
+    <div class="container">
+        <h1>🌟 LexiMemo AI 翻译测试</h1>
+        
+        <div class="instruction">
+            <strong>使用说明：</strong> 选中下面的任意文本，然后点击出现的翻译图标 🌐 来测试富文本翻译显示效果。
+        </div>
 
-    <div class="test-section">
-        <h2>🔤 单词测试</h2>
-        <p>请选择这些单词进行翻译测试：</p>
-        <p>
-            <span class="highlight">beautiful</span>, 
-            <span class="highlight">wonderful</span>, 
-            <span class="highlight">amazing</span>, 
-            <span class="highlight">incredible</span>, 
-            <span class="highlight">fantastic</span>
-        </p>
-    </div>
+        <div class="test-section">
+            <h2>📚 单词测试</h2>
+            <div class="test-text">
+                The word <strong>serendipity</strong> means a pleasant surprise or a fortunate accident.
+            </div>
+            <div class="test-text">
+                She has an <strong>eloquent</strong> way of expressing her thoughts.
+            </div>
+            <div class="test-text">
+                The <strong>ubiquitous</strong> presence of smartphones has changed our daily lives.
+            </div>
+        </div>
 
-    <div class="test-section">
-        <h2>📝 句子测试</h2>
-        <p>请选择这些句子进行翻译测试：</p>
-        <p class="highlight">The quick brown fox jumps over the lazy dog.</p>
-        <p class="highlight">Artificial intelligence is transforming the way we learn languages.</p>
-        <p class="highlight">Practice makes perfect when it comes to language learning.</p>
-    </div>
+        <div class="test-section">
+            <h2>📖 句子测试</h2>
+            <div class="test-text">
+                The rapid advancement of artificial intelligence has revolutionized various industries.
+            </div>
+            <div class="test-text">
+                Despite the challenges, she persevered and achieved her goals through determination and hard work.
+            </div>
+            <div class="test-text">
+                The intricate relationship between technology and society continues to evolve in unexpected ways.
+            </div>
+        </div>
 
-    <div class="test-section">
-        <h2>📚 段落测试</h2>
-        <p>请选择这个段落的部分内容进行翻译：</p>
-        <p>
-            Language learning has evolved significantly with the advent of artificial intelligence. 
-            Modern AI-powered tools can provide instant translations, pronunciation guides, and 
-            personalized learning experiences. These technologies make it easier than ever to 
-            master a new language, whether you're a beginner or looking to refine your skills.
-        </p>
-    </div>
+        <div class="test-section">
+            <h2>🔬 复杂表达测试</h2>
+            <div class="test-text">
+                The phenomenon of <strong>cognitive dissonance</strong> occurs when our beliefs conflict with our actions.
+            </div>
+            <div class="test-text">
+                In the realm of quantum physics, the principle of <strong>superposition</strong> challenges our understanding of reality.
+            </div>
+            <div class="test-text">
+                The concept of <strong>sustainable development</strong> requires balancing economic growth with environmental protection.
+            </div>
+        </div>
 
-    <div class="test-section">
-        <h2>🌍 多语言测试</h2>
-        <p>测试其他语言的翻译：</p>
-        <p><span class="highlight">Bonjour</span> (French)</p>
-        <p><span class="highlight">Hola</span> (Spanish)</p>
-        <p><span class="highlight">Guten Tag</span> (German)</p>
-        <p><span class="highlight">こんにちは</span> (Japanese)</p>
+        <div class="test-section">
+            <h2>🎨 文学表达测试</h2>
+            <div class="test-text">
+                The <strong>melancholic</strong> atmosphere of the autumn evening filled her heart with nostalgia.
+            </div>
+            <div class="test-text">
+                His words carried a <strong>profound</strong> wisdom that resonated deeply with the audience.
+            </div>
+            <div class="test-text">
+                The <strong>ephemeral</strong> beauty of cherry blossoms reminds us of life's fleeting nature.
+            </div>
+        </div>
+
+        <div class="feature-highlight">
+            <h3>🎯 富文本显示特性</h3>
+            <ul class="feature-list">
+                <li>结构化的翻译内容展示</li>
+                <li>清晰的分区标题和图标</li>
+                <li>优雅的颜色编码系统</li>
+                <li>中英文对照的例句显示</li>
+                <li>词性标签的美化显示</li>
+                <li>发音信息的特殊格式</li>
+                <li>解析内容的列表化处理</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        // 添加一些调试信息
-        console.log('Test page loaded');
-        
-        // 监听选择事件
-        document.addEventListener('mouseup', function() {
-            const selection = window.getSelection();
-            if (selection && selection.toString().trim()) {
-                console.log('Text selected:', selection.toString().trim());
-            }
+        // 添加一些交互效果
+        document.querySelectorAll('.test-text').forEach(element => {
+            element.addEventListener('click', function() {
+                // 选中文本
+                const range = document.createRange();
+                range.selectNodeContents(this);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
         });
-        
-        // 检查扩展是否已加载
-        setTimeout(() => {
-            const translationCard = document.getElementById('ai-translation-card');
-            if (!translationCard) {
-                console.log('Translation card not found - extension may not be loaded');
-            }
-        }, 1000);
     </script>
 </body>
 </html>

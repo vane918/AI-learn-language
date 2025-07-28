@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON格式AI响应解析测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .json-input {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+        .parsed-result {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .field {
+            margin-bottom: 10px;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .field-content {
+            margin-left: 10px;
+            color: #212529;
+        }
+        .examples-list {
+            margin-left: 20px;
+        }
+        .examples-list li {
+            margin-bottom: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON格式AI响应解析测试</h1>
+    
+    <div class="test-container">
+        <h2 class="test-title">测试1: "ubiquitous"的JSON响应</h2>
+        <div class="json-input" id="json1">{
+  "translation": "无处不在的，普遍存在的",
+  "wordType": "形容词",
+  "pronunciation": "/juːˈbɪkwɪtəs/",
+  "explanation": "来自拉丁语ubique（到处）+ -ous（形容词后缀）\n强调某事物的广泛存在和普及性\n常用于描述技术、现象或概念的普遍性",
+  "examples": [
+    "智能手机已经变得无处不在。(Smartphones have become ubiquitous.) - 展示标准用法",
+    "在数字时代，数据收集变得无处不在。(In the digital age, data collection has become ubiquitous.) - 变换点：时代背景的应用"
+  ]
+}</div>
+        <button onclick="testParse('json1', 'result1')">解析测试</button>
+        <div class="parsed-result" id="result1"></div>
+    </div>
+
+    <div class="test-container">
+        <h2 class="test-title">测试2: "artificial intelligence"的JSON响应</h2>
+        <div class="json-input" id="json2">{
+  "translation": "人工智能",
+  "wordType": "",
+  "pronunciation": "",
+  "explanation": "artificial（人工的）+ intelligence（智能）的复合词\n指通过计算机系统模拟人类智能的技术\n涵盖机器学习、深度学习、自然语言处理等领域",
+  "examples": [
+    "人工智能正在改变我们的生活方式。(Artificial intelligence is changing the way we live.) - 展示标准用法",
+    "许多公司正在投资人工智能技术。(Many companies are investing in artificial intelligence technology.) - 变换点：商业应用语境"
+  ]
+}</div>
+        <button onclick="testParse('json2', 'result2')">解析测试</button>
+        <div class="parsed-result" id="result2"></div>
+    </div>
+
+    <script>
+        // 模拟parseFormattedResponse函数
+        function parseFormattedResponse(response) {
+            try {
+                // 尝试直接解析JSON
+                const jsonData = JSON.parse(response);
+                
+                return {
+                    translation: jsonData.translation || '',
+                    wordType: jsonData.wordType || '',
+                    pronunciation: jsonData.pronunciation || '',
+                    explanation: jsonData.explanation || '',
+                    examples: Array.isArray(jsonData.examples) ? jsonData.examples.filter(ex => ex.trim()) : []
+                };
+            } catch (error) {
+                console.warn('Failed to parse JSON response, falling back to text parsing:', error);
+                
+                // 如果JSON解析失败，回退到原来的文本解析方式
+                const result = {
+                    translation: '',
+                    wordType: '',
+                    pronunciation: '',
+                    explanation: '',
+                    examples: []
+                };
+
+                const lines = response.split('\n');
+                let currentSection = '';
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // 跳过空行
+                    if (!line) continue;
+                    
+                    // 检查是否是标题行
+                    const titleMatch = line.match(/^###\s*(.+?)[:：]\s*(.*)$/);
+                    if (titleMatch) {
+                        const title = titleMatch[1].trim();
+                        const content = titleMatch[2].trim();
+                        
+                        // 根据标题确定当前部分
+                        if (title.includes('翻译')) {
+                            currentSection = 'translation';
+                            if (content) result.translation = content;
+                        } else if (title.includes('词性')) {
+                            currentSection = 'wordType';
+                            if (content) result.wordType = content;
+                        } else if (title.includes('发音')) {
+                            currentSection = 'pronunciation';
+                            if (content) result.pronunciation = content;
+                        } else if (title.includes('解析')) {
+                            currentSection = 'explanation';
+                            if (content) result.explanation = content;
+                        } else if (title.includes('例句')) {
+                            currentSection = 'examples';
+                            if (content) result.examples.push(content);
+                        }
+                        continue;
+                    }
+                    
+                    // 处理内容行
+                    if (currentSection && line) {
+                        if (currentSection === 'examples') {
+                            // 对于例句，每行都是一个新的例句
+                            result.examples.push(line);
+                        } else {
+                            // 对于其他字段，累积内容
+                            const currentValue = result[currentSection];
+                            if (typeof currentValue === 'string') {
+                                result[currentSection] = currentValue ? 
+                                    `${currentValue}\n${line}` : line;
+                            }
+                        }
+                    }
+                }
+
+                // 过滤空的例句
+                result.examples = result.examples.filter(example => example.trim());
+
+                return result;
+            }
+        }
+
+        function testParse(jsonId, resultId) {
+            const jsonText = document.getElementById(jsonId).textContent;
+            const result = parseFormattedResponse(jsonText);
+            
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = `
+                <div class="field">
+                    <span class="field-label">翻译:</span>
+                    <div class="field-content">${result.translation}</div>
+                </div>
+                <div class="field">
+                    <span class="field-label">词性:</span>
+                    <div class="field-content">${result.wordType || '(空)'}</div>
+                </div>
+                <div class="field">
+                    <span class="field-label">发音:</span>
+                    <div class="field-content">${result.pronunciation || '(空)'}</div>
+                </div>
+                <div class="field">
+                    <span class="field-label">解析:</span>
+                    <div class="field-content">${result.explanation.replace(/\n/g, '<br>')}</div>
+                </div>
+                <div class="field">
+                    <span class="field-label">例句:</span>
+                    <ul class="examples-list">
+                        ${result.examples.map(ex => `<li>${ex}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据传递调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <h1>数据传递调试页面</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 模拟AI返回的JSON字符串</h2>
+        <button onclick="testJsonString()">测试JSON字符串处理</button>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试2: 模拟handleTranslationComplete函数</h2>
+        <button onclick="testHandleTranslationComplete()">测试数据处理</button>
+        <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试3: 实际翻译测试</h2>
+        <p>请选择这个单词进行翻译测试: <strong>eloquent</strong></p>
+        <div id="result3" class="result">请选择上面的单词，然后查看浏览器控制台的调试信息</div>
+    </div>
+
+    <script>
+        function testJsonString() {
+            const jsonString = `{
+                "translation": "雄辩的",
+                "wordType": "形容词",
+                "pronunciation": "/ˈeləkwənt/",
+                "explanation": "处理要点:\\n1. 核心语义为'表达有力的'，中文选用'雄辩'对应其修辞学内涵\\n2. -ent形容词后缀统一处理为'的'",
+                "examples": [
+                    "这位律师的总结陈词十分雄辩 (The lawyer's closing argument was remarkably eloquent) - 展示标准用法",
+                    "尽管不善言辞，他的文字却异常雄辩 (Though soft-spoken, his writings were extraordinarily eloquent) - 变换点：修饰对象转换"
+                ]
+            }`;
+            
+            console.log('原始JSON字符串:', jsonString);
+            console.log('字符串类型:', typeof jsonString);
+            
+            try {
+                const parsed = JSON.parse(jsonString);
+                console.log('解析后的对象:', parsed);
+                console.log('对象类型:', typeof parsed);
+                
+                document.getElementById('result1').innerHTML = `
+                    <strong>原始字符串:</strong><br>
+                    <pre>${jsonString}</pre>
+                    <strong>解析后的对象:</strong><br>
+                    <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('JSON解析错误:', error);
+                document.getElementById('result1').innerHTML = `JSON解析错误: ${error.message}`;
+            }
+        }
+
+        function testHandleTranslationComplete() {
+            // 模拟handleTranslationComplete函数的逻辑
+            function mockHandleTranslationComplete(data) {
+                console.log('🔍 mockHandleTranslationComplete - data type:', typeof data);
+                console.log('🔍 mockHandleTranslationComplete - data:', data);
+                
+                // 如果data是字符串，尝试解析为JSON
+                if (typeof data === 'string') {
+                    try {
+                        const parsedData = JSON.parse(data);
+                        console.log('🔍 mockHandleTranslationComplete - parsed data:', parsedData);
+                        data = parsedData;
+                    } catch (error) {
+                        console.error('🔍 mockHandleTranslationComplete - JSON parse error:', error);
+                        return `<div class="ai-translation-text">${data}</div>`;
+                    }
+                }
+                
+                let formattedContent = '';
+                
+                if (data.translation) {
+                    formattedContent += `<div class="ai-section ai-translation-section">`;
+                    formattedContent += `<div class="ai-section-title">💬 翻译</div>`;
+                    formattedContent += `<div class="ai-translation-content">${data.translation}</div>`;
+                    formattedContent += `</div>`;
+                }
+                
+                if (data.wordType) {
+                    formattedContent += `<div class="ai-section ai-wordtype-section">`;
+                    formattedContent += `<div class="ai-section-title">📝 词性</div>`;
+                    formattedContent += `<div class="ai-wordtype-content"><span class="ai-word-type-tag">${data.wordType}</span></div>`;
+                    formattedContent += `</div>`;
+                }
+                
+                if (data.pronunciation) {
+                    formattedContent += `<div class="ai-section ai-pronunciation-section">`;
+                    formattedContent += `<div class="ai-section-title">🔊 发音</div>`;
+                    formattedContent += `<div class="ai-pronunciation-content">${data.pronunciation}</div>`;
+                    formattedContent += `</div>`;
+                }
+                
+                return formattedContent;
+            }
+            
+            // 测试用例1: 传入JSON字符串
+            const jsonString = `{
+                "translation": "雄辩的",
+                "wordType": "形容词",
+                "pronunciation": "/ˈeləkwənt/"
+            }`;
+            
+            const result1 = mockHandleTranslationComplete(jsonString);
+            
+            // 测试用例2: 传入对象
+            const jsonObject = {
+                "translation": "雄辩的",
+                "wordType": "形容词",
+                "pronunciation": "/ˈeləkwənt/"
+            };
+            
+            const result2 = mockHandleTranslationComplete(jsonObject);
+            
+            document.getElementById('result2').innerHTML = `
+                <strong>测试用例1 (JSON字符串):</strong><br>
+                ${result1}
+                <br><br>
+                <strong>测试用例2 (JSON对象):</strong><br>
+                ${result2}
+            `;
+        }
+    </script>
+</body>
+</html>

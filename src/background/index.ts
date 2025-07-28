@@ -1,8 +1,6 @@
 import { 
   translateWithAI,
-  streamTranslateWithAI,
-  AITranslationRequest,
-  parseFormattedResponse
+  AITranslationRequest
 } from '../services/aiService';
 import { 
   getUserSettings, 
@@ -194,31 +192,24 @@ async function handleTranslateRequest(
       return true;
     }
 
-    sendResponse({ success: true, data: { streaming: true } });
-    
-    const stream = streamTranslateWithAI(
+    // 直接使用非流式翻译
+    const translationResult = await translateWithAI(
       translationRequest,
       settings.aiProvider,
       settings.apiKey
     );
 
-    let fullContent = '';
-    for await (const chunk of stream) {
-      fullContent += chunk.content;
-      await chrome.tabs.sendMessage(tabId, {
-        action: 'translationChunk',
-        data: chunk,
-        requestId: message.requestId
-      });
-    }
-
-    const parsedResponse = parseFormattedResponse(fullContent);
-    // 发送最终完整响应
+    console.log('🔍 [background] translationResult type:', typeof translationResult);
+    console.log('🔍 [background] translationResult:', translationResult);
+    
+    // 发送翻译完成响应
     await chrome.tabs.sendMessage(tabId, {
       action: 'translationComplete',
-      data: parsedResponse,
+      data: translationResult,
       requestId: message.requestId
     });
+
+    sendResponse({ success: true, data: translationResult });
 
   } catch (error) {
     sendResponse({ 

@@ -22,11 +22,32 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
       messages: [
         {
           role: 'system',
-          content: `你是一位专业的英汉翻译专家。\n任务：请将用户提供的英文句子翻译成地道、简洁的学术化中文。\n返回格式要求：你必须且只返回以下三部分内容，格式如下：\n### 翻译：\n(此处放置中文翻译结果)\n### 解析：\n(此处解析关键点、翻译技巧、难点处理等，语言简洁清晰)\n### 例句：\n1. **(例句1-标准释义型例句)** (中文例句) - (对应英文翻译，展示核心语义的灵活表达)\n2. **(例句2-用户输入变换句式)** (中文例句) - (对应英文翻译，基于用户输入的句子做句式变换后的表达)\n\n约束条件：\n1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯。\n2. 解析需简明扼要，突出核心信息处理（如特定术语、固定搭配、句法转换、文化负载词处理等）。\n3. 第一个例句需展示单词/短语在贴近原句意思的标准完整句子中的应用。\n4. 第二个例句需基于用户提供的原句进行句型的转换应用（如主动/被动转换、肯定/否定变化、疑问句改写或更简化的表达等），并保留原句核心语义。在例句后注明变换点（例如：被动转换）。\n5. 中文例句需用括号标注英文解释。\n6. 专注于翻译和语言本身，拒绝回答无关问题。\n7. 避免使用任何俚语、网络流行语或过于口语化的表达，保持学术风格。避免任何主观评价。\n8. 直接输出翻译、解析、例句三部分，不要添加任何问候语、结束语或其他无关说明。`
+          content: `你是一位专业的英汉翻译专家。请将用户提供的英文内容翻译成地道、简洁的学术化中文。
+
+你必须严格按照以下JSON格式返回结果，不要添加任何其他内容：
+
+{
+  "translation": "中文翻译结果",
+  "wordType": "词性（仅对单个词汇提供，如：名词、动词、形容词等；短语或句子则为空字符串）",
+  "pronunciation": "发音（仅对单个词汇提供国际音标，如：/ˈeksəmpl/；短语或句子则为空字符串）",
+  "explanation": "解析说明（关键点、翻译技巧、难点处理等，用\\n分隔多个要点）",
+  "examples": [
+    "中文例句1 (English example sentence 1) - 展示标准用法",
+    "中文例句2 (English example sentence 2) - 变换点：说明变换类型"
+  ]
+}
+
+要求：
+1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯
+2. 词性和发音仅对单个英文词汇提供，短语和句子留空
+3. 解析要简明扼要，突出核心信息处理
+4. 例句必须是完整的中英文对照
+5. 严格返回有效的JSON格式，确保可以被JSON.parse()解析
+6. 避免使用俚语、网络流行语，保持学术风格`
         },
         {
           role: 'user',
-          content: `Text: "${request.text}"${request.context ? `\nContext: "${request.context}"` : ''}`
+          content: `请翻译: "${request.text}"${request.context ? `\n上下文: "${request.context}"` : ''}`
         }
       ]
     }),
@@ -44,11 +65,32 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
       messages: [
         {
           role: 'system',
-          content: `你是一位专业的英汉翻译专家。\n任务：请将用户提供的英文句子翻译成地道、简洁的学术化中文。\n返回格式要求：你必须且只返回以下三部分内容，格式如下：\n翻译：\n(此处放置中文翻译结果)\n 解析：\n(此处解析关键点、翻译技巧、难点处理等，语言简洁清晰)\n 例句：\n1. (例句1-标准释义型例句) (中文例句) - (对应英文翻译，展示核心语义的灵活表达)\n2. (例句2-用户输入变换句式) (中文例句) - (对应英文翻译，基于用户输入的句子做句式变换后的表达)\n\n约束条件：\n1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯。\n2. 解析需简明扼要，突出核心信息处理（如特定术语、固定搭配、句法转换、文化负载词处理等）。\n3. 第一个例句需展示单词/短语在贴近原句意思的标准完整句子中的应用。\n4. 第二个例句需基于用户提供的原句进行句型的转换应用（如主动/被动转换、肯定/否定变化、疑问句改写或更简化的表达等），并保留原句核心语义。在例句后注明变换点（例如：被动转换）。\n5. 中文例句需用括号标注英文解释。\n6. 专注于翻译和语言本身，拒绝回答无关问题。\n7. 避免使用任何俚语、网络流行语或过于口语化的表达，保持学术风格。避免任何主观评价。\n8. 直接输出翻译、解析、例句三部分，不要添加任何问候语、结束语或其他无关说明。`
+          content: `你是一位专业的英汉翻译专家。请将用户提供的英文内容翻译成地道、简洁的学术化中文。
+
+你必须严格按照以下JSON格式返回结果，不要添加任何其他内容：
+
+{
+  "translation": "中文翻译结果",
+  "wordType": "词性（仅对单个词汇提供，如：名词、动词、形容词等；短语或句子则为空字符串）",
+  "pronunciation": "发音（仅对单个词汇提供国际音标，如：/ˈeksəmpl/；短语或句子则为空字符串）",
+  "explanation": "解析说明（关键点、翻译技巧、难点处理等，用\\n分隔多个要点）",
+  "examples": [
+    "中文例句1 (English example sentence 1) - 展示标准用法",
+    "中文例句2 (English example sentence 2) - 变换点：说明变换类型"
+  ]
+}
+
+要求：
+1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯
+2. 词性和发音仅对单个英文词汇提供，短语和句子留空
+3. 解析要简明扼要，突出核心信息处理
+4. 例句必须是完整的中英文对照
+5. 严格返回有效的JSON格式，确保可以被JSON.parse()解析
+6. 避免使用俚语、网络流行语，保持学术风格`
         },
         {
           role: 'user',
-          content: `Translate: "${request.text}"${request.context ? `\nContext: "${request.context}"` : ''}`
+          content: `请翻译: "${request.text}"${request.context ? `\n上下文: "${request.context}"` : ''}`
         }
       ]
     }),
@@ -64,7 +106,30 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
     requestFormatter: (request: AITranslationRequest, _apiKey: string) => ({
       contents: [{
         parts: [{
-          text: `你是一位专业的英汉翻译专家。\n任务：请将用户提供的英文句子翻译成地道、简洁的学术化中文。\n返回格式要求：你必须且只返回以下三部分内容，格式如下：\n### 翻译：\n(此处放置中文翻译结果)\n### 解析：\n(此处解析关键点、翻译技巧、难点处理等，语言简洁清晰)\n### 例句：\n1. **(例句1-标准释义型例句)** (中文例句) - (对应英文翻译，展示核心语义的灵活表达)\n2. **(例句2-用户输入变换句式)** (中文例句) - (对应英文翻译，基于用户输入的句子做句式变换后的表达)\n\n约束条件：\n1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯。\n2. 解析需简明扼要，突出核心信息处理（如特定术语、固定搭配、句法转换、文化负载词处理等）。\n3. 第一个例句需展示单词/短语在贴近原句意思的标准完整句子中的应用。\n4. 第二个例句需基于用户提供的原句进行句型的转换应用（如主动/被动转换、肯定/否定变化、疑问句改写或更简化的表达等），并保留原句核心语义。在例句后注明变换点（例如：被动转换）。\n5. 中文例句需用括号标注英文解释。\n6. 专注于翻译和语言本身，拒绝回答无关问题。\n7. 避免使用任何俚语、网络流行语或过于口语化的表达，保持学术风格。避免任何主观评价。\n8. 直接输出翻译、解析、例句三部分，不要添加任何问候语、结束语或其他无关说明。\n\n待翻译英文原文： [<<<${request.text}>>>]${request.context ? `\nContext: "${request.context}"` : ''}`
+          text: `你是一位专业的英汉翻译专家。请将用户提供的英文内容翻译成地道、简洁的学术化中文。
+
+你必须严格按照以下JSON格式返回结果，不要添加任何其他内容：
+
+{
+  "translation": "中文翻译结果",
+  "wordType": "词性（仅对单个词汇提供，如：名词、动词、形容词等；短语或句子则为空字符串）",
+  "pronunciation": "发音（仅对单个词汇提供国际音标，如：/ˈeksəmpl/；短语或句子则为空字符串）",
+  "explanation": "解析说明（关键点、翻译技巧、难点处理等，用\\n分隔多个要点）",
+  "examples": [
+    "中文例句1 (English example sentence 1) - 展示标准用法",
+    "中文例句2 (English example sentence 2) - 变换点：说明变换类型"
+  ]
+}
+
+要求：
+1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯
+2. 词性和发音仅对单个英文词汇提供，短语和句子留空
+3. 解析要简明扼要，突出核心信息处理
+4. 例句必须是完整的中英文对照
+5. 严格返回有效的JSON格式，确保可以被JSON.parse()解析
+6. 避免使用俚语、网络流行语，保持学术风格
+
+待翻译英文原文： [<<<${request.text}>>>]${request.context ? `\n上下文: "${request.context}"` : ''}`
         }]
       }]
     }),
@@ -76,32 +141,142 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
  * 调用 AI API 进行翻译
  */
 export function parseFormattedResponse(text: string): AITranslationResponse {
-  const lines = text.split('\n');
-  let translation = '';
-  let wordType = '';
-  let pronunciation = '';
-  let explanation = '';
-  let examples: string[] = [];
-  let currentSection = '';
-  for (let line of lines) {
-    line = line.trim();
-    if (line.startsWith('翻译：') || line.startsWith('### 翻译：')) {
-      translation = line.replace(/###? 翻译：/, '').trim();
-      currentSection = 'translation';
-    } else if (line.startsWith('解析：') || line.startsWith('### 解析：')) {
-      explanation = line.replace(/###? 解析：/, '').trim();
-      currentSection = 'explanation';
-    } else if (line.startsWith('例句：') || line.startsWith('### 例句：')) {
-      currentSection = 'examples';
-    } else if (currentSection === 'examples' && line.trim()) {
-      examples.push(line.trim());
-    } else if (currentSection === 'explanation' && line.trim()) {
-      explanation += '\n' + line.trim();
-    } else if (currentSection === 'translation' && line.trim()) {
-      translation += ' ' + line.trim();
+  console.log('🔍 [parseFormattedResponse] Input text:', text);
+  console.log('🔍 [parseFormattedResponse] Input type:', typeof text);
+  
+  try {
+    // 清理文本，移除可能的markdown代码块标记
+    let cleanText = text.trim();
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '');
     }
+    
+    console.log('🔍 [parseFormattedResponse] Cleaned text:', cleanText);
+    
+    // 尝试直接解析JSON
+    const jsonData = JSON.parse(cleanText);
+    console.log('🔍 [parseFormattedResponse] Parsed JSON:', jsonData);
+    
+    const result = {
+      translation: jsonData.translation || '',
+      wordType: jsonData.wordType || '',
+      pronunciation: jsonData.pronunciation || '',
+      explanation: jsonData.explanation || '',
+      examples: Array.isArray(jsonData.examples) ? jsonData.examples.filter((ex: string) => ex.trim()) : []
+    };
+    
+    console.log('🔍 [parseFormattedResponse] Final result:', result);
+    return result;
+  } catch (error) {
+    console.warn('🔍 [parseFormattedResponse] Failed to parse JSON response, falling back to text parsing:', error);
+    
+    // 如果JSON解析失败，回退到原来的文本解析方式
+    const lines = text.split('\n');
+    let translation = '';
+    let wordType = '';
+    let pronunciation = '';
+    let explanation = '';
+    let examples: string[] = [];
+    let currentSection = '';
+    
+    for (let line of lines) {
+      line = line.trim();
+      
+      // 跳过空行
+      if (!line) {
+        continue;
+      }
+      
+      // 匹配各个部分的标题
+      if (line.startsWith('翻译：') || line.startsWith('### 翻译：')) {
+        const content = line.replace(/###?\s*翻译：\s*/, '').trim();
+        if (content) {
+          translation = content;
+        }
+        currentSection = 'translation';
+      } else if (line.startsWith('词性：') || line.startsWith('### 词性：')) {
+        const content = line.replace(/###?\s*词性：\s*/, '').trim();
+        if (content) {
+          wordType = content;
+        }
+        currentSection = 'wordType';
+      } else if (line.startsWith('发音：') || line.startsWith('### 发音：')) {
+        const content = line.replace(/###?\s*发音：\s*/, '').trim();
+        if (content) {
+          pronunciation = content;
+        }
+        currentSection = 'pronunciation';
+      } else if (line.startsWith('解析：') || line.startsWith('### 解析：')) {
+        const content = line.replace(/###?\s*解析：\s*/, '').trim();
+        if (content) {
+          explanation = content;
+        }
+        currentSection = 'explanation';
+      } else if (line.startsWith('例句：') || line.startsWith('### 例句：')) {
+        const content = line.replace(/###?\s*例句：\s*/, '').trim();
+        if (content) {
+          examples.push(content);
+        }
+        currentSection = 'examples';
+      } else if (currentSection) {
+        // 处理各部分的内容
+        switch (currentSection) {
+          case 'translation':
+            if (!translation) {
+              translation = line;
+            } else {
+              translation += ' ' + line;
+            }
+            break;
+          case 'wordType':
+            if (!wordType) {
+              wordType = line;
+            } else {
+              wordType += ' ' + line;
+            }
+            break;
+          case 'pronunciation':
+            if (!pronunciation) {
+              pronunciation = line;
+            } else {
+              pronunciation += ' ' + line;
+            }
+            break;
+          case 'explanation':
+            if (!explanation) {
+              explanation = line;
+            } else {
+              explanation += '\n' + line;
+            }
+            break;
+          case 'examples':
+            if (line) {
+              examples.push(line);
+            }
+            break;
+        }
+      } else {
+        // 如果没有明确的section，但是内容看起来像翻译结果，就当作翻译处理
+        if (!translation && !currentSection) {
+          translation = line;
+          currentSection = 'translation';
+        }
+      }
+    }
+    
+    const fallbackResult = { 
+      translation: translation.trim(), 
+      wordType: wordType.trim(), 
+      pronunciation: pronunciation.trim(), 
+      explanation: explanation.trim(), 
+      examples: examples.filter(ex => ex.trim()) 
+    };
+    
+    console.log('🔍 [parseFormattedResponse] Fallback result:', fallbackResult);
+    return fallbackResult;
   }
-  return { translation: translation.trim(), wordType, pronunciation, explanation: explanation.trim(), examples };
 }
 
 export async function translateWithAI(

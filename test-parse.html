@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI翻译解析测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        .ai-response {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-line;
+            font-family: monospace;
+        }
+        .parsed-result {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .section {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid #2196f3;
+            background: #f0f8ff;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        .examples {
+            list-style: none;
+            padding: 0;
+        }
+        .examples li {
+            margin: 5px 0;
+            padding: 5px;
+            background: #fff;
+            border-radius: 3px;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI翻译解析测试</h1>
+    
+    <div class="test-container">
+        <h2>测试AI返回的翻译结果解析</h2>
+        
+        <h3>原始AI返回文本：</h3>
+        <div class="ai-response" id="aiResponse">无处不在的
+
+### 词性：
+形容词
+
+### 发音：
+/juːˈbɪkwɪtəs/
+
+### 解析：
+1. 核心语义：指某事物普遍存在或广泛分布的状态
+2. 词源处理：保留拉丁词根"ubi-"（各处）的隐含意义
+3. 学术适配：选用"无处不在"而非口语化的"哪儿都有"
+4. 形容词处理：通过"的"字结构保持修饰功能
+
+### 例句：
+1. 智能手机在当代社会已成为无处不在的设备 (Smartphones have become ubiquitous devices in modern society) - 展示标准形容词用法
+2. 这种技术的无处不在性改变了人类互动方式 (The ubiquity of this technology has altered human interaction) - 变换点：名词化转换</div>
+        
+        <button onclick="testParsing()">测试解析</button>
+        <button onclick="testAnotherExample()">测试另一个例子</button>
+        
+        <h3>解析结果：</h3>
+        <div class="parsed-result" id="parsedResult">
+            点击"测试解析"按钮查看结果
+        </div>
+    </div>
+
+    <script type="module">
+        // 复制parseFormattedResponse函数
+        function parseFormattedResponse(text) {
+            const lines = text.split('\n');
+            let translation = '';
+            let wordType = '';
+            let pronunciation = '';
+            let explanation = '';
+            let examples = [];
+            let currentSection = '';
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                // 跳过空行
+                if (!line) {
+                    continue;
+                }
+                
+                // 匹配各个部分的标题
+                if (line.startsWith('翻译：') || line.startsWith('### 翻译：')) {
+                    const content = line.replace(/###?\s*翻译：\s*/, '').trim();
+                    if (content) {
+                        translation = content;
+                    }
+                    currentSection = 'translation';
+                } else if (line.startsWith('词性：') || line.startsWith('### 词性：')) {
+                    const content = line.replace(/###?\s*词性：\s*/, '').trim();
+                    if (content) {
+                        wordType = content;
+                    }
+                    currentSection = 'wordType';
+                } else if (line.startsWith('发音：') || line.startsWith('### 发音：')) {
+                    const content = line.replace(/###?\s*发音：\s*/, '').trim();
+                    if (content) {
+                        pronunciation = content;
+                    }
+                    currentSection = 'pronunciation';
+                } else if (line.startsWith('解析：') || line.startsWith('### 解析：')) {
+                    const content = line.replace(/###?\s*解析：\s*/, '').trim();
+                    if (content) {
+                        explanation = content;
+                    }
+                    currentSection = 'explanation';
+                } else if (line.startsWith('例句：') || line.startsWith('### 例句：')) {
+                    const content = line.replace(/###?\s*例句：\s*/, '').trim();
+                    if (content) {
+                        examples.push(content);
+                    }
+                    currentSection = 'examples';
+                } else if (currentSection) {
+                    // 处理各部分的内容
+                    switch (currentSection) {
+                        case 'translation':
+                            if (!translation) {
+                                translation = line;
+                            } else {
+                                translation += ' ' + line;
+                            }
+                            break;
+                        case 'wordType':
+                            if (!wordType) {
+                                wordType = line;
+                            } else {
+                                wordType += ' ' + line;
+                            }
+                            break;
+                        case 'pronunciation':
+                            if (!pronunciation) {
+                                pronunciation = line;
+                            } else {
+                                pronunciation += ' ' + line;
+                            }
+                            break;
+                        case 'explanation':
+                            if (!explanation) {
+                                explanation = line;
+                            } else {
+                                explanation += '\n' + line;
+                            }
+                            break;
+                        case 'examples':
+                            if (line) {
+                                examples.push(line);
+                            }
+                            break;
+                    }
+                } else {
+                    // 如果没有明确的section，但是内容看起来像翻译结果，就当作翻译处理
+                    if (!translation && !currentSection) {
+                        translation = line;
+                        currentSection = 'translation';
+                    }
+                }
+            }
+            
+            return { 
+                translation: translation.trim(), 
+                wordType: wordType.trim(), 
+                pronunciation: pronunciation.trim(), 
+                explanation: explanation.trim(), 
+                examples: examples.filter(ex => ex.trim()) 
+            };
+        }
+
+        function displayParsedResult(result) {
+            const container = document.getElementById('parsedResult');
+            container.innerHTML = `
+                <div class="section">
+                    <div class="section-title">翻译：</div>
+                    <div>${result.translation || '未找到'}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">词性：</div>
+                    <div>${result.wordType || '未找到'}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">发音：</div>
+                    <div>${result.pronunciation || '未找到'}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">解析：</div>
+                    <div style="white-space: pre-line;">${result.explanation || '未找到'}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">例句：</div>
+                    <ul class="examples">
+                        ${result.examples.length > 0 ? 
+                            result.examples.map(ex => `<li>${ex}</li>`).join('') : 
+                            '<li>未找到例句</li>'
+                        }
+                    </ul>
+                </div>
+            `;
+        }
+
+        window.testParsing = function() {
+            const aiText = document.getElementById('aiResponse').textContent;
+            const result = parseFormattedResponse(aiText);
+            console.log('解析结果:', result);
+            displayParsedResult(result);
+        };
+
+        window.testAnotherExample = function() {
+            const anotherExample = `### 翻译：
+人工智能
+
+### 词性：
+名词
+
+### 发音：
+/ˌɑːrtɪˈfɪʃl ɪnˈtelɪdʒəns/
+
+### 解析：
+1. 技术定义：模拟人类智能的计算机系统
+2. 应用领域：涵盖机器学习、深度学习、自然语言处理等
+3. 发展趋势：从弱人工智能向强人工智能发展
+4. 社会影响：正在改变各行各业的工作方式
+
+### 例句：
+1. 人工智能技术正在革命性地改变医疗诊断方式 (Artificial intelligence technology is revolutionizing medical diagnosis)
+2. 许多公司正在投资人工智能研发项目 (Many companies are investing in artificial intelligence R&D projects)`;
+            
+            document.getElementById('aiResponse').textContent = anotherExample;
+            const result = parseFormattedResponse(anotherExample);
+            console.log('解析结果:', result);
+            displayParsedResult(result);
+        };
+    </script>
+</body>
+</html>

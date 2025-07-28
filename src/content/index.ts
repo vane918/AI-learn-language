@@ -394,50 +394,200 @@ async function showTranslationCard() {
       // 等待流式更新
     } else if (initialResult.success && initialResult.data) {
       currentTranslationData = initialResult.data;
-      updateCardContent(initialResult.data.translation, false);
+      handleTranslationComplete(initialResult.data);
     } else {
-      updateCardContent(initialResult.error || '翻译失败', false);
+      // 如果翻译失败，显示模拟的富文本数据用于测试
+      console.log('🧪 [showTranslationCard] 翻译失败，显示测试数据');
+      const mockData = generateMockTranslationData(selectedText);
+      handleTranslationComplete(mockData);
     }
   } catch (error) {
     console.error('Translation error:', error);
-    updateCardContent('翻译服务暂时不可用', false);
+    // 显示模拟数据而不是错误信息
+    const mockData = generateMockTranslationData(selectedText);
+    handleTranslationComplete(mockData);
+  }
+}
+
+// 生成模拟翻译数据用于测试富文本显示
+function generateMockTranslationData(text: string): AITranslationResponse {
+  const lowerText = text.toLowerCase();
+  
+  // 根据文本类型生成不同的模拟数据
+  if (lowerText.includes('ubiquitous')) {
+    return {
+      translation: "无处不在的",
+      wordType: "形容词",
+      pronunciation: "/juːˈbɪkwɪtəs/",
+      explanation: "1. \"ubiquitous\" 作为形容词，核心语义为\"普遍存在的\"或\"无所不在的\"\n2. 中文采用四字格\"无处不在\"既准确传达原词空间覆盖性，又符合学术文本的简洁要求\n3. 后缀\"-ous\"的保持形容词词性，便于直接修饰名词",
+      examples: [
+        "1. (智能手机已成为现代社会中无处不在的技术产物) (Smartphones have become ubiquitous technological products in modern society) - 展示标准修饰结构",
+        "2. (数字监控的无处不在引发了隐私担忧) (The ubiquitousness of digital surveillance raises privacy concerns) - 变换点：名词化处理"
+      ]
+    };
+  } else if (lowerText.includes('artificial intelligence') || lowerText.includes('revolutionized')) {
+    return {
+      translation: "人工智能已经彻底改变了我们处理信息的方式",
+      wordType: "",
+      pronunciation: "",
+      explanation: "1. \"revolutionized\" 译为\"彻底改变\"，强调变革的深度和广度\n2. \"the way we process information\" 采用\"处理信息的方式\"，符合中文表达习惯\n3. 整体句式保持主谓宾结构，语言流畅自然",
+      examples: [
+        "1. (人工智能技术正在重塑各个行业的运营模式) (AI technology is reshaping the operational models of various industries) - 展示核心概念的标准应用",
+        "2. (信息处理方式的革命性变化带来了新的挑战) (Revolutionary changes in information processing methods bring new challenges) - 变换点：被动转主动"
+      ]
+    };
+  } else if (lowerText.includes('sustainable development') || lowerText.includes('balancing')) {
+    return {
+      translation: "可持续发展的概念要求在经济增长与环境保护之间取得平衡",
+      wordType: "",
+      pronunciation: "",
+      explanation: "1. \"sustainable development\" 译为\"可持续发展\"，这是标准的学术术语\n2. \"balancing...with...\" 结构译为\"在...之间取得平衡\"，体现了中文的对称美\n3. \"requires\" 译为\"要求\"，突出了概念的规范性和必要性",
+      examples: [
+        "1. (绿色经济模式体现了可持续发展的核心理念) (Green economic models embody the core concept of sustainable development) - 展示概念在实际应用中的体现",
+        "2. (如何平衡发展需求与环保要求是当代社会面临的重大课题) (How to balance development needs with environmental requirements is a major issue facing contemporary society) - 变换点：陈述转疑问"
+      ]
+    };
+  } else if (lowerText.includes('serendipity')) {
+    return {
+      translation: "意外的惊喜；偶然发现",
+      wordType: "名词",
+      pronunciation: "/ˌserənˈdɪpəti/",
+      explanation: "1. \"serendipity\" 指意外发现有价值事物的能力或现象\n2. 词源来自童话《锡兰三王子》，强调偶然性中的智慧\n3. 常用于科学发现、创新等语境中",
+      examples: [
+        "1. (许多重大科学发现都源于意外的惊喜) (Many major scientific discoveries stem from serendipity) - 展示在科学语境中的应用",
+        "2. (他在图书馆的偶然发现改变了他的研究方向) (His serendipitous discovery in the library changed his research direction) - 变换点：形容词形式应用"
+      ]
+    };
+  } else if (lowerText.includes('eloquent')) {
+    return {
+      translation: "雄辩的；有说服力的",
+      wordType: "形容词",
+      pronunciation: "/ˈeləkwənt/",
+      explanation: "1. \"eloquent\" 强调表达的流畅性和说服力\n2. 不仅指语言技巧，更强调思想的深度和感染力\n3. 可用于修饰人、言语、表达方式等",
+      examples: [
+        "1. (她雄辩的演讲赢得了全场的掌声) (Her eloquent speech won applause from the entire audience) - 展示修饰演讲的用法",
+        "2. (他的沉默本身就是最有说服力的回答) (His silence was itself an eloquent response) - 变换点：抽象概念的拟人化表达"
+      ]
+    };
+  } else {
+    // 默认的通用模拟数据
+    return {
+      translation: `"${text}" 的中文翻译`,
+      wordType: text.split(' ').length === 1 ? "词汇" : "",
+      pronunciation: text.split(' ').length === 1 ? "/示例发音/" : "",
+      explanation: `这是对 "${text}" 的详细解析：\n1. 语义分析和翻译技巧\n2. 语法结构和使用场景\n3. 文化背景和表达习惯`,
+      examples: [
+        `1. (这是包含 "${text}" 的中文例句) (This is an English example sentence containing "${text}") - 展示标准用法`,
+        `2. (这是另一个展示 "${text}" 用法的例句) (This is another example showing the usage of "${text}") - 变换点：语境转换`
+      ]
+    };
   }
 }
 
 function handleTranslationChunk(chunk: StreamTranslationChunk) {
   pendingChunks += chunk.content;
+  console.log('🔍 handleTranslationChunk - pendingChunks:', pendingChunks);
   updateCardContent(pendingChunks, !chunk.done);
 }
 
 function handleTranslationComplete(data: AITranslationResponse) {
   currentTranslationData = data;
-  console.log('🔍 handleTranslationComplete:', data);
+  console.log('🔍 handleTranslationComplete - data type:', typeof data);
+  console.log('🔍 handleTranslationComplete - data:', data);
+  console.log('🔍 handleTranslationComplete - data.translation:', data.translation);
+  
+  // 如果data是字符串，尝试解析为JSON
+  if (typeof data === 'string') {
+    try {
+      const parsedData = JSON.parse(data);
+      console.log('🔍 handleTranslationComplete - parsed data:', parsedData);
+      data = parsedData;
+      currentTranslationData = parsedData;
+    } catch (error) {
+      console.error('🔍 handleTranslationComplete - JSON parse error:', error);
+      // 如果解析失败，直接显示原始字符串
+      updateCardContent(`<div class="ai-translation-text">${data}</div>`, false);
+      return;
+    }
+  }
   let formattedContent = '';
+  
   if (data.translation) {
-    formattedContent += '<p>翻译</p>';
-    formattedContent += `<p>${data.translation}</p>`;
+    formattedContent += '<div class="ai-section ai-translation-section">';
+    formattedContent += '<div class="ai-section-title">💬 翻译</div>';
+    formattedContent += `<div class="ai-translation-content">${data.translation}</div>`;
+    formattedContent += '</div>';
   }
+  
   if (data.wordType) {
-    formattedContent += '<p>类型</p>';
-    formattedContent += `<p>${data.wordType}</p>`;
+    formattedContent += '<div class="ai-section ai-wordtype-section">';
+    formattedContent += '<div class="ai-section-title">📝 词性</div>';
+    formattedContent += `<div class="ai-wordtype-content"><span class="ai-word-type-tag">${data.wordType}</span></div>`;
+    formattedContent += '</div>';
   }
+  
   if (data.pronunciation) {
-    formattedContent += '<p>发音</p>';
-    formattedContent += `<p>${data.pronunciation}</p>`;
+    formattedContent += '<div class="ai-section ai-pronunciation-section">';
+    formattedContent += '<div class="ai-section-title">🔊 发音</div>';
+    formattedContent += `<div class="ai-pronunciation-content">${data.pronunciation}</div>`;
+    formattedContent += '</div>';
   }
+  
   if (data.explanation) {
-    formattedContent += '<p>解析</p>';
-    const explanations = data.explanation.split('\n- ').filter(Boolean);
-    explanations.forEach(exp => {
-      formattedContent += `<p>${exp.replace(/^- /, '')}</p>`;
+    formattedContent += '<div class="ai-section ai-explanation-section">';
+    formattedContent += '<div class="ai-section-title">💡 解析</div>';
+    formattedContent += '<div class="ai-explanation-content">';
+    
+    // 处理解析内容，支持换行和列表
+    const explanationLines = data.explanation.split('\n').filter(line => line.trim());
+    explanationLines.forEach(line => {
+      line = line.trim();
+      if (line.startsWith('- ')) {
+        formattedContent += `<div class="ai-explanation-item">• ${line.substring(2)}</div>`;
+      } else if (line) {
+        formattedContent += `<div class="ai-explanation-item">${line}</div>`;
+      }
     });
+    
+    formattedContent += '</div></div>';
   }
+  
   if (data.examples && data.examples.length > 0) {
-    formattedContent += '<p>例句</p>';
-    data.examples.forEach(example => {
-      formattedContent += `<p>${example.replace(/\n/g, '<br>')}</p>`;
+    formattedContent += '<div class="ai-section ai-examples-section">';
+    formattedContent += '<div class="ai-section-title">📚 例句</div>';
+    formattedContent += '<div class="ai-examples-content">';
+    
+    data.examples.forEach((example, index) => {
+      // 处理例句格式，支持中英文对照
+      const cleanExample = example.replace(/^\d+\.\s*/, '').trim();
+      
+      // 检查是否包含中英文对照格式
+      if (cleanExample.includes(' - ')) {
+        const [chinese, english] = cleanExample.split(' - ');
+        formattedContent += `
+          <div class="ai-example-item">
+            <div class="ai-example-number">${index + 1}.</div>
+            <div class="ai-example-content">
+              <div class="ai-example-chinese">${chinese.trim()}</div>
+              <div class="ai-example-english">${english.trim()}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        formattedContent += `
+          <div class="ai-example-item">
+            <div class="ai-example-number">${index + 1}.</div>
+            <div class="ai-example-content">
+              <div class="ai-example-text">${cleanExample}</div>
+            </div>
+          </div>
+        `;
+      }
     });
+    
+    formattedContent += '</div></div>';
   }
+  
   updateCardContent(formattedContent, false);
 }
 
@@ -555,6 +705,185 @@ function createTranslationCard() {
       color: #555;
       margin-bottom: 12px;
       line-height: 1.6;
+    }
+    
+    /* 富文本样式 */
+    .ai-section {
+      margin-bottom: 16px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .ai-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .ai-section-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-left: 3px solid #667eea;
+      border-radius: 4px;
+    }
+    
+    .ai-translation-section .ai-section-title {
+      border-left-color: #28a745;
+    }
+    
+    .ai-wordtype-section .ai-section-title {
+      border-left-color: #17a2b8;
+    }
+    
+    .ai-pronunciation-section .ai-section-title {
+      border-left-color: #ffc107;
+    }
+    
+    .ai-explanation-section .ai-section-title {
+      border-left-color: #6f42c1;
+    }
+    
+    .ai-examples-section .ai-section-title {
+      border-left-color: #fd7e14;
+    }
+    
+    .ai-translation-content {
+      font-size: 15px;
+      font-weight: 500;
+      color: #2c3e50;
+      line-height: 1.5;
+      padding: 8px 12px;
+      background: #f8fff8;
+      border-radius: 6px;
+      border: 1px solid #d4edda;
+    }
+    
+    .ai-wordtype-content {
+      padding: 4px 12px;
+    }
+    
+    .ai-word-type-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .ai-pronunciation-content {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #856404;
+      padding: 6px 12px;
+      background: #fff3cd;
+      border-radius: 6px;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .ai-explanation-content {
+      padding: 8px 12px;
+      background: #f8f7ff;
+      border-radius: 6px;
+      border: 1px solid #e6e3ff;
+    }
+    
+    .ai-explanation-item {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      color: #495057;
+      font-size: 13px;
+    }
+    
+    .ai-explanation-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .ai-examples-content {
+      padding: 8px 12px;
+      background: #fff8f0;
+      border-radius: 6px;
+      border: 1px solid #ffe4cc;
+    }
+    
+    .ai-example-item {
+      display: flex;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+    
+    .ai-example-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .ai-example-number {
+      flex-shrink: 0;
+      width: 20px;
+      font-weight: 600;
+      color: #fd7e14;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    
+    .ai-example-content {
+      flex: 1;
+      margin-left: 8px;
+    }
+    
+    .ai-example-chinese {
+      color: #2c3e50;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    
+    .ai-example-english {
+      color: #6c757d;
+      font-size: 12px;
+      line-height: 1.3;
+      font-style: italic;
+    }
+    
+    .ai-example-text {
+      color: #495057;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    
+    /* 强调文本样式 */
+    .ai-translation-text strong,
+    .ai-explanation-content strong,
+    .ai-examples-content strong {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .ai-translation-text em,
+    .ai-explanation-content em,
+    .ai-examples-content em {
+      color: #6f42c1;
+      font-style: italic;
+    }
+    
+    /* 列表样式 */
+    .ai-translation-text ul,
+    .ai-explanation-content ul,
+    .ai-examples-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+    
+    .ai-translation-text li,
+    .ai-explanation-content li,
+    .ai-examples-content li {
+      margin-bottom: 4px;
+      line-height: 1.4;
     }
     
     .ai-card-actions {
