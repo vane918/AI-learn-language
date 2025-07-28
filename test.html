@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learn Language - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .highlight {
+            background-color: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .instruction {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 AI Learn Language - 划词翻译测试页面</h1>
+    
+    <div class="instruction">
+        <h3>📋 使用说明：</h3>
+        <ol>
+            <li>确保已安装并启用 AI Learn Language 扩展</li>
+            <li>在扩展设置中配置 API Key（OpenAI、DeepSeek 或 Gemini）</li>
+            <li>选择下面的英文文本，应该会弹出翻译卡片</li>
+            <li>如果没有弹出，请检查控制台错误信息</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔤 单词测试</h2>
+        <p>请选择这些单词进行翻译测试：</p>
+        <p>
+            <span class="highlight">beautiful</span>, 
+            <span class="highlight">wonderful</span>, 
+            <span class="highlight">amazing</span>, 
+            <span class="highlight">incredible</span>, 
+            <span class="highlight">fantastic</span>
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 句子测试</h2>
+        <p>请选择这些句子进行翻译测试：</p>
+        <p class="highlight">The quick brown fox jumps over the lazy dog.</p>
+        <p class="highlight">Artificial intelligence is transforming the way we learn languages.</p>
+        <p class="highlight">Practice makes perfect when it comes to language learning.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>📚 段落测试</h2>
+        <p>请选择这个段落的部分内容进行翻译：</p>
+        <p>
+            Language learning has evolved significantly with the advent of artificial intelligence. 
+            Modern AI-powered tools can provide instant translations, pronunciation guides, and 
+            personalized learning experiences. These technologies make it easier than ever to 
+            master a new language, whether you're a beginner or looking to refine your skills.
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>🌍 多语言测试</h2>
+        <p>测试其他语言的翻译：</p>
+        <p><span class="highlight">Bonjour</span> (French)</p>
+        <p><span class="highlight">Hola</span> (Spanish)</p>
+        <p><span class="highlight">Guten Tag</span> (German)</p>
+        <p><span class="highlight">こんにちは</span> (Japanese)</p>
+    </div>
+
+    <script>
+        // 添加一些调试信息
+        console.log('Test page loaded');
+        
+        // 监听选择事件
+        document.addEventListener('mouseup', function() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                console.log('Text selected:', selection.toString().trim());
+            }
+        });
+        
+        // 检查扩展是否已加载
+        setTimeout(() => {
+            const translationCard = document.getElementById('ai-translation-card');
+            if (!translationCard) {
+                console.log('Translation card not found - extension may not be loaded');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
