@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
@@ -35,6 +35,13 @@ const SettingsPage = () => {
     queryFn: getUserSettings,
   });
 
+  // 当设置加载完成或AI提供商改变时，更新API Key输入框
+  useEffect(() => {
+    if (settings?.apiKeys) {
+      setApiKey(settings.apiKeys[settings.aiProvider] || '');
+    }
+  }, [settings?.aiProvider, settings?.apiKeys]);
+
   // 保存设置的 mutation
   const saveSettingsMutation = useMutation({
     mutationFn: saveUserSettings,
@@ -61,15 +68,23 @@ const SettingsPage = () => {
       
       if (response.success && response.data.valid) {
         setValidationResult({ valid: true, message: 'API Key is valid!' });
-        // 自动保存有效的 API Key
-        await saveSettingsMutation.mutateAsync({ apiKey: apiKey.trim() });
+        // 保存有效的 API Key 到对应的提供商
+        const newApiKeys = {
+          ...settings.apiKeys,
+          [settings.aiProvider]: apiKey.trim()
+        };
+        await saveSettingsMutation.mutateAsync({ apiKeys: newApiKeys });
       } else {
-        const errorMessage = response.data?.error || 'Invalid API Key. Please check and try again.';
-        setValidationResult({ valid: false, message: errorMessage });
+        setValidationResult({ 
+          valid: false, 
+          message: response.data?.error || 'Invalid API Key. Please check and try again.' 
+        });
       }
     } catch (error) {
-      console.error('API Key validation error:', error);
-      setValidationResult({ valid: false, message: 'Failed to validate API Key.' });
+      setValidationResult({ 
+        valid: false, 
+        message: 'Failed to validate API Key. Please try again.' 
+      });
     } finally {
       setIsValidating(false);
     }
@@ -110,10 +125,12 @@ const SettingsPage = () => {
               label="AI Provider"
               onChange={(e) => handleSaveSettings({ aiProvider: e.target.value as any })}
             >
+              <MenuItem value="qwen">Qwen (快速翻译)</MenuItem>
+              <MenuItem value="qwen-plus">Qwen (通义千问)</MenuItem>
+              <MenuItem value="deepseek">deepseek-v3</MenuItem>
               <MenuItem value="openai">OpenAI (GPT)</MenuItem>
-              <MenuItem value="deepseek">DeepSeek</MenuItem>
               <MenuItem value="gemini">Google Gemini</MenuItem>
-              <MenuItem value="qwen">Qwen (通义千问)</MenuItem>
+              
             </Select>
           </FormControl>
 
@@ -122,12 +139,12 @@ const SettingsPage = () => {
             size="small"
             label="API Key"
             type="password"
-            value={apiKey || settings.apiKey}
+            value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="Enter your API key"
             sx={{ mb: 2 }}
             InputProps={{
-              endAdornment: settings.apiKey && (
+              endAdornment: settings.apiKeys[settings.aiProvider] && (
                 <Chip
                   label="Saved"
                   size="small"

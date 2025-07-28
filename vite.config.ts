@@ -22,9 +22,9 @@ const copyStaticFiles = () => {
       }
       
       // 复制图标文件
-      copyFileSync('icons/icon16.svg', 'dist/icons/icon16.svg');
-      copyFileSync('icons/icon48.svg', 'dist/icons/icon48.svg');
-      copyFileSync('icons/icon128.svg', 'dist/icons/icon128.svg');
+      copyFileSync('icons/icon16.png', 'dist/icons/icon16.png');
+      copyFileSync('icons/icon48.png', 'dist/icons/icon48.png');
+      copyFileSync('icons/icon128.png', 'dist/icons/icon128.png');
     }
   }
 }

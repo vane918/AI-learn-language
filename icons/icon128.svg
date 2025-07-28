@@ -1,10 +1,51 @@
 <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="20" fill="#1976d2"/>
-  <rect x="20" y="32" width="88" height="64" rx="8" fill="white"/>
-  <path d="M32 48h64v4H32v-4zm0 12h64v4H32v-4zm0 12h56v4H32v-4zm0 12h48v4H32v-4z" fill="#1976d2"/>
-  <circle cx="96" cy="32" r="16" fill="#ff9800"/>
-  <path d="M88 24l6 6 12-12" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="24" y="36" width="8" height="8" rx="2" fill="#4caf50"/>
-  <rect x="24" y="52" width="8" height="8" rx="2" fill="#2196f3"/>
-  <rect x="24" y="68" width="8" height="8" rx="2" fill="#ff5722"/>
+  <!-- 背景渐变 -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 圆角背景 -->
+  <rect width="128" height="128" rx="24" fill="url(#bgGradient)"/>
+  
+  <!-- 书本主体 -->
+  <rect x="24" y="32" width="80" height="64" rx="6" fill="url(#bookGradient)" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- 书本页面线条 -->
+  <line x1="32" y1="48" x2="72" y2="48" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="56" x2="80" y2="56" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="64" x2="76" y2="64" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="72" x2="68" y2="72" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="80" x2="84" y2="80" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- 翻译箭头 -->
+  <circle cx="88" cy="48" r="12" fill="url(#aiGradient)"/>
+  <path d="M84 44 L88 48 L84 52" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M92 44 L88 48 L92 52" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- 语言标识 -->
+  <rect x="76" y="60" width="24" height="16" rx="8" fill="#4caf50"/>
+  <text x="88" y="70" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">AI</text>
+  
+  <!-- 装饰性元素 - 语言符号 -->
+  <circle cx="36" cy="40" r="3" fill="#ff6b6b" opacity="0.8"/>
+  <circle cx="44" cy="40" r="3" fill="#4ecdc4" opacity="0.8"/>
+  <circle cx="52" cy="40" r="3" fill="#45b7d1" opacity="0.8"/>
+  
+  <!-- 记忆曲线装饰 -->
+  <path d="M32 88 Q48 84 64 88 T96 88" stroke="#ffd93d" stroke-width="2" fill="none" opacity="0.7"/>
+  
+  <!-- 闪光效果 -->
+  <circle cx="96" cy="36" r="2" fill="#ffffff" opacity="0.9"/>
+  <circle cx="92" cy="32" r="1.5" fill="#ffffff" opacity="0.7"/>
 </svg>

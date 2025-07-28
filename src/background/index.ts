@@ -171,10 +171,12 @@ async function handleTranslateRequest(
   try {
     const settings = await getUserSettings();
     
-    if (!settings.apiKey) {
+    // 获取当前提供商的API Key
+    const apiKey = settings.apiKeys?.[settings.aiProvider];
+    if (!apiKey) {
       sendResponse({ 
         success: false, 
-        error: 'API Key not configured' 
+        error: `API Key not configured for ${settings.aiProvider}` 
       });
       return true;
     }
@@ -196,7 +198,7 @@ async function handleTranslateRequest(
     const translationResult = await translateWithAI(
       translationRequest,
       settings.aiProvider,
-      settings.apiKey
+      apiKey
     );
 
     console.log('🔍 [background] translationResult type:', typeof translationResult);

@@ -1,7 +1,46 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="48" height="48" rx="8" fill="#1976d2"/>
-  <rect x="8" y="12" width="32" height="24" rx="4" fill="white"/>
-  <path d="M12 18h24v2H12v-2zm0 4h24v2H12v-2zm0 4h20v2H12v-2zm0 4h16v2H12v-2z" fill="#1976d2"/>
-  <circle cx="36" cy="12" r="6" fill="#ff9800"/>
-  <path d="M33 9l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 背景渐变 -->
+  <defs>
+    <linearGradient id="bgGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 圆角背景 -->
+  <rect width="48" height="48" rx="9" fill="url(#bgGradient48)"/>
+  
+  <!-- 书本主体 -->
+  <rect x="8" y="12" width="32" height="24" rx="2" fill="url(#bookGradient48)" stroke="#e0e0e0" stroke-width="0.5"/>
+  
+  <!-- 书本页面线条 -->
+  <line x1="12" y1="18" x2="28" y2="18" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="22" x2="32" y2="22" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="26" x2="30" y2="26" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="30" x2="26" y2="30" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  
+  <!-- 翻译箭头 -->
+  <circle cx="34" cy="18" r="5" fill="url(#aiGradient48)"/>
+  <path d="M32 16 L34 18 L32 20" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M36 16 L34 18 L36 20" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- AI标识 -->
+  <rect x="30" y="24" width="10" height="6" rx="3" fill="#4caf50"/>
+  <text x="35" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="3" font-weight="bold">AI</text>
+  
+  <!-- 装饰性元素 -->
+  <circle cx="14" cy="15" r="1" fill="#ff6b6b" opacity="0.8"/>
+  <circle cx="17" cy="15" r="1" fill="#4ecdc4" opacity="0.8"/>
+  <circle cx="20" cy="15" r="1" fill="#45b7d1" opacity="0.8"/>
+  
+  <!-- 记忆曲线装饰 -->
+  <path d="M12 34 Q20 32 28 34 T36 34" stroke="#ffd93d" stroke-width="1" fill="none" opacity="0.7"/>
 </svg>

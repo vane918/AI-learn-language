@@ -155,15 +155,24 @@ function processTextSelection(event: MouseEvent) {
     return;
   }
   
-  if (text.length > 200) {
-    console.log('❌ [processTextSelection] 文本过长:', text.length);
+  // 增加文本长度限制，支持更长的多句子选择
+  // if (text.length > 500) {
+  //   console.log('❌ [processTextSelection] 文本过长:', text.length);
+  //   clearSelection();
+  //   return;
+  // }
+  
+  // 改进文本有效性检查：确保包含字母、数字或中文字符
+  if (!/[\w\u4e00-\u9fff]/.test(text)) {
+    console.log('❌ [processTextSelection] 文本不包含有效字符');
     clearSelection();
     return;
   }
   
-  // 检查是否是有意义的文本（不是纯空格或特殊字符）
-  if (!/\w/.test(text)) {
-    console.log('❌ [processTextSelection] 文本不包含有效字符');
+  // 过滤掉纯标点符号或纯空白字符的选择
+  const cleanText = text.replace(/[\s\p{P}]/gu, '');
+  if (cleanText.length === 0) {
+    console.log('❌ [processTextSelection] 文本只包含标点符号和空白字符');
     clearSelection();
     return;
   }

@@ -209,7 +209,12 @@ export async function getUserSettingsFromCloud(): Promise<UserSettings | null> {
     const data = docSnap.data();
     return {
       aiProvider: data.aiProvider,
-      apiKey: data.apiKey,
+      apiKeys: data.apiKeys || {
+        openai: data.apiKey || '',
+        deepseek: '',
+        gemini: '',
+        qwen: ''
+      },
       language: data.language,
       dailyReviewLimit: data.dailyReviewLimit,
       enableNotifications: data.enableNotifications

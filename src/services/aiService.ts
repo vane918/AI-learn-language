@@ -56,12 +56,12 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
 
   deepseek: {
     name: 'DeepSeek',
-    apiUrl: 'https://api.deepseek.com/v1/chat/completions',
+    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     headers: {
       'Content-Type': 'application/json',
     },
     requestFormatter: (request: AITranslationRequest, _apiKey: string) => ({
-      model: 'deepseek-chat',
+      model: 'deepseek-v3',
       messages: [
         {
           role: 'system',
@@ -143,7 +143,7 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
       'Content-Type': 'application/json',
     },
     requestFormatter: (request: AITranslationRequest, _apiKey: string) => ({
-      model: 'qwen-mt-turbo',
+      model: 'qwen-mt-plus',
       messages: [
         {
           role: 'user',
@@ -153,7 +153,8 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
       extra_body: {
         translation_options: {
           source_lang: 'auto',
-          target_lang: 'Chinese'
+          target_lang: 'Chinese',
+          domains: "The sentence is from Ali Cloud IT domain. It mainly involves computer-related software development and usage methods, including many terms related to computer software and hardware. Pay attention to professional troubleshooting terminologies and sentence patterns when translating. Translate into this IT domain style."
         }
       }
     }),
@@ -168,6 +169,49 @@ const AI_PROVIDERS: Record<string, AIProviderConfig> = {
         examples: []
       };
     },
+  },
+
+  "qwen-plus": {
+    name: 'Qwen (通义千问)',
+    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    requestFormatter: (request: AITranslationRequest, _apiKey: string) => ({
+      model: 'qwen-plus',
+      messages: [
+        {
+          role: 'system',
+          content: `你是一位专业的英汉翻译专家。请将用户提供的英文内容翻译成地道、简洁的学术化中文。
+
+你必须严格按照以下JSON格式返回结果，不要添加任何其他内容：
+
+{
+  "translation": "中文翻译结果",
+  "wordType": "词性（仅对单个词汇提供，如：名词、动词、形容词等；短语或句子则为空字符串）",
+  "pronunciation": "发音（仅对单个词汇提供国际音标，如：/ˈeksəmpl/；短语或句子则为空字符串）",
+  "explanation": "解析说明（关键点、翻译技巧、难点处理等，用\\n分隔多个要点）",
+  "examples": [
+    "中文例句1 (English example sentence 1) - 展示标准用法",
+    "中文例句2 (English example sentence 2) - 变换点：说明变换类型"
+  ]
+}
+
+要求：
+1. 翻译需流畅自然，避免机械直译，符合中文阅读习惯
+2. 词性和发音仅对单个英文词汇提供，短语和句子留空
+3. 解析要简明扼要，突出核心信息处理
+4. 例句必须是完整的中英文对照
+5. 严格返回有效的JSON格式，确保可以被JSON.parse()解析
+6. 避免使用俚语、网络流行语，保持学术风格`
+        },
+        {
+          role: 'user',
+          content: `请翻译: "${request.text}"${request.context ? `\n上下文: "${request.context}"` : ''}`
+        }
+      ]
+    }),
+    responseParser: (response: any): AITranslationResponse => parseFormattedResponse(response.choices[0].message.content),
   }
 };
 
@@ -355,7 +399,7 @@ export async function* streamTranslateWithAI(
       : config.apiUrl;
 
     const headers = { ...config.headers };
-    if (provider === 'openai' || provider === 'deepseek' || provider === 'qwen') {
+    if (provider === 'openai' || provider === 'deepseek' || provider === 'qwen' || provider === 'qwen-plus') {
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
 
@@ -413,6 +457,8 @@ export async function* streamTranslateWithAI(
         } else if (provider === 'gemini') {
           rawContent = data.candidates[0].content.parts[0].text;
         } else if (provider === 'qwen') {
+          rawContent = data.choices[0].message.content;
+        } else if (provider === 'qwen-plus') {
           rawContent = data.choices[0].message.content;
         }
         yield { content: rawContent, done: false };

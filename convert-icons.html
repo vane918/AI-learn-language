@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG to PNG Converter</title>
+</head>
+<body>
+    <h1>SVG to PNG Icon Converter</h1>
+    <div id="converter">
+        <canvas id="canvas16" width="16" height="16" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+        <canvas id="canvas48" width="48" height="48" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+        <canvas id="canvas128" width="128" height="128" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+        <br>
+        <button onclick="downloadIcons()">Download PNG Icons</button>
+    </div>
+
+    <script>
+        // SVG content for each size
+        const svgContent16 = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="16" height="16" rx="3" fill="url(#bgGradient16)"/>
+  <rect x="2" y="4" width="12" height="8" rx="1" fill="white" stroke="#e0e0e0" stroke-width="0.2"/>
+  <line x1="4" y1="6" x2="10" y2="6" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  <line x1="4" y1="8" x2="12" y2="8" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  <line x1="4" y1="10" x2="11" y2="10" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  <circle cx="12" cy="6" r="2" fill="url(#aiGradient16)"/>
+  <path d="M11 5.5 L12 6 L11 6.5" stroke="white" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 5.5 L12 6 L13 6.5" stroke="white" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="10" y="9" width="4" height="2" rx="1" fill="#4caf50"/>
+  <text x="12" y="10.2" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="1.2" font-weight="bold">AI</text>
+</svg>`;
+
+        const svgContent48 = `<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient48" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="9" fill="url(#bgGradient48)"/>
+  <rect x="8" y="12" width="32" height="24" rx="2" fill="url(#bookGradient48)" stroke="#e0e0e0" stroke-width="0.5"/>
+  <line x1="12" y1="18" x2="28" y2="18" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="22" x2="32" y2="22" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="26" x2="30" y2="26" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <line x1="12" y1="30" x2="26" y2="30" stroke="#667eea" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="34" cy="18" r="5" fill="url(#aiGradient48)"/>
+  <path d="M32 16 L34 18 L32 20" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M36 16 L34 18 L36 20" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="30" y="24" width="10" height="6" rx="3" fill="#4caf50"/>
+  <text x="35" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="3" font-weight="bold">AI</text>
+  <circle cx="14" cy="15" r="1" fill="#ff6b6b" opacity="0.8"/>
+  <circle cx="17" cy="15" r="1" fill="#4ecdc4" opacity="0.8"/>
+  <circle cx="20" cy="15" r="1" fill="#45b7d1" opacity="0.8"/>
+  <path d="M12 34 Q20 32 28 34 T36 34" stroke="#ffd93d" stroke-width="1" fill="none" opacity="0.7"/>
+</svg>`;
+
+        const svgContent128 = `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bgGradient)"/>
+  <rect x="20" y="32" width="88" height="64" rx="6" fill="url(#bookGradient)" stroke="#e0e0e0" stroke-width="1"/>
+  <line x1="32" y1="48" x2="76" y2="48" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="58" x2="88" y2="58" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="68" x2="84" y2="68" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="78" x2="72" y2="78" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="92" cy="48" r="12" fill="url(#aiGradient)"/>
+  <path d="M86 44 L92 48 L86 52" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M98 44 L92 48 L98 52" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="80" y="64" width="24" height="16" rx="8" fill="#4caf50"/>
+  <text x="92" y="74" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">AI</text>
+  <circle cx="36" cy="40" r="3" fill="#ff6b6b" opacity="0.8"/>
+  <circle cx="44" cy="40" r="3" fill="#4ecdc4" opacity="0.8"/>
+  <circle cx="52" cy="40" r="3" fill="#45b7d1" opacity="0.8"/>
+  <path d="M32 88 Q52 84 72 88 T96 88" stroke="#ffd93d" stroke-width="2" fill="none" opacity="0.7"/>
+  <circle cx="104" cy="24" r="8" fill="#ff9800" opacity="0.9"/>
+  <path d="M100 20 L102 22 L108 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+        function svgToPng(svgContent, canvas) {
+            const img = new Image();
+            const svg = new Blob([svgContent], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(svg);
+            
+            img.onload = function() {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadIcons() {
+            setTimeout(() => downloadCanvas(document.getElementById('canvas16'), 'icon16.png'), 100);
+            setTimeout(() => downloadCanvas(document.getElementById('canvas48'), 'icon48.png'), 200);
+            setTimeout(() => downloadCanvas(document.getElementById('canvas128'), 'icon128.png'), 300);
+        }
+
+        // Convert SVGs to PNG on page load
+        window.onload = function() {
+            svgToPng(svgContent16, document.getElementById('canvas16'));
+            svgToPng(svgContent48, document.getElementById('canvas48'));
+            svgToPng(svgContent128, document.getElementById('canvas128'));
+        };
+    </script>
+</body>
+</html>

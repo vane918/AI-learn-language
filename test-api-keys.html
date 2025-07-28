@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Keys 分离保存测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .provider-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 API Keys 分离保存功能测试</h1>
+        <p>这个页面用于测试每个AI提供商的API Key是否能够独立保存和切换。</p>
+
+        <div class="test-section">
+            <h3>1. 查看当前设置</h3>
+            <button onclick="getCurrentSettings()">获取当前设置</button>
+            <div id="currentSettings" class="result info" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 模拟设置不同提供商的API Key</h3>
+            <div class="provider-section">
+                <label>选择提供商:</label>
+                <select id="providerSelect">
+                    <option value="openai">OpenAI</option>
+                    <option value="deepseek">DeepSeek</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="qwen">Qwen</option>
+                    <option value="qwen-plus">Qwen Plus</option>
+                </select>
+                <input type="text" id="apiKeyInput" placeholder="输入API Key" />
+                <button onclick="saveApiKey()">保存API Key</button>
+            </div>
+            <div id="saveResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 测试切换提供商</h3>
+            <p>保存不同提供商的API Key后，测试切换提供商是否能正确显示对应的API Key。</p>
+            <div class="provider-section">
+                <label>切换到:</label>
+                <select id="switchProvider">
+                    <option value="openai">OpenAI</option>
+                    <option value="deepseek">DeepSeek</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="qwen">Qwen</option>
+                    <option value="kimi">Kimi</option>
+                </select>
+                <button onclick="switchProvider()">切换提供商</button>
+            </div>
+            <div id="switchResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 验证数据迁移</h3>
+            <p>测试从旧版本的单一apiKey字段迁移到新的apiKeys对象结构。</p>
+            <button onclick="testMigration()">模拟旧数据并测试迁移</button>
+            <div id="migrationResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 清除测试数据</h3>
+            <button onclick="clearTestData()" style="background: #dc3545;">清除所有测试数据</button>
+            <div id="clearResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取当前设置
+        async function getCurrentSettings() {
+            try {
+                const result = await chrome.storage.local.get('userSettings');
+                const settings = result.userSettings;
+                
+                document.getElementById('currentSettings').style.display = 'block';
+                document.getElementById('currentSettings').className = 'result info';
+                document.getElementById('currentSettings').textContent = 
+                    '当前设置:\n' + JSON.stringify(settings, null, 2);
+            } catch (error) {
+                document.getElementById('currentSettings').style.display = 'block';
+                document.getElementById('currentSettings').className = 'result error';
+                document.getElementById('currentSettings').textContent = '错误: ' + error.message;
+            }
+        }
+
+        // 保存API Key
+        async function saveApiKey() {
+            const provider = document.getElementById('providerSelect').value;
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            
+            if (!apiKey) {
+                showResult('saveResult', 'error', '请输入API Key');
+                return;
+            }
+
+            try {
+                // 获取当前设置
+                const result = await chrome.storage.local.get('userSettings');
+                const currentSettings = result.userSettings || {
+                    aiProvider: 'openai',
+                    apiKeys: { openai: '', deepseek: '', gemini: '', qwen: '', 'qwen-plus': '' },
+                    language: 'zh',
+                    dailyReviewLimit: 50,
+                    enableNotifications: true
+                };
+
+                // 更新对应提供商的API Key
+                currentSettings.apiKeys[provider] = apiKey;
+                currentSettings.aiProvider = provider;
+
+                // 保存设置
+                await chrome.storage.local.set({ userSettings: currentSettings });
+
+                showResult('saveResult', 'success', 
+                    `成功保存 ${provider} 的API Key: ${apiKey.substring(0, 10)}...`);
+                
+                // 清空输入框
+                document.getElementById('apiKeyInput').value = '';
+                
+            } catch (error) {
+                showResult('saveResult', 'error', '保存失败: ' + error.message);
+            }
+        }
+
+        // 切换提供商
+        async function switchProvider() {
+            const newProvider = document.getElementById('switchProvider').value;
+            
+            try {
+                // 获取当前设置
+                const result = await chrome.storage.local.get('userSettings');
+                const currentSettings = result.userSettings;
+                
+                if (!currentSettings || !currentSettings.apiKeys) {
+                    showResult('switchResult', 'error', '没有找到设置数据');
+                    return;
+                }
+
+                // 切换提供商
+                currentSettings.aiProvider = newProvider;
+                await chrome.storage.local.set({ userSettings: currentSettings });
+
+                const apiKey = currentSettings.apiKeys[newProvider];
+                showResult('switchResult', 'success', 
+                    `切换到 ${newProvider}\n` +
+                    `当前API Key: ${apiKey ? apiKey.substring(0, 10) + '...' : '未设置'}\n` +
+                    `所有API Keys:\n${JSON.stringify(currentSettings.apiKeys, null, 2)}`);
+                
+            } catch (error) {
+                showResult('switchResult', 'error', '切换失败: ' + error.message);
+            }
+        }
+
+        // 测试数据迁移
+        async function testMigration() {
+            try {
+                // 模拟旧版本数据
+                const oldSettings = {
+                    aiProvider: 'openai',
+                    apiKey: 'old-openai-key-12345',
+                    language: 'zh',
+                    dailyReviewLimit: 50,
+                    enableNotifications: true
+                };
+
+                // 保存旧数据
+                await chrome.storage.local.set({ userSettings: oldSettings });
+                
+                showResult('migrationResult', 'info', 
+                    '1. 已保存旧版本数据:\n' + JSON.stringify(oldSettings, null, 2));
+
+                // 模拟获取设置（触发迁移）
+                setTimeout(async () => {
+                    try {
+                        const result = await chrome.storage.local.get('userSettings');
+                        const migratedSettings = result.userSettings;
+                        
+                        // 检查是否正确迁移
+                        if (migratedSettings.apiKeys && 
+                            migratedSettings.apiKeys.openai === 'old-openai-key-12345' &&
+                            !migratedSettings.apiKey) {
+                            
+                            showResult('migrationResult', 'success', 
+                                '2. 数据迁移成功!\n' + 
+                                '旧的 apiKey 字段已迁移到 apiKeys.openai\n' +
+                                '迁移后的数据:\n' + JSON.stringify(migratedSettings, null, 2));
+                        } else {
+                            showResult('migrationResult', 'error', 
+                                '2. 数据迁移失败\n' + 
+                                '当前数据:\n' + JSON.stringify(migratedSettings, null, 2));
+                        }
+                    } catch (error) {
+                        showResult('migrationResult', 'error', '迁移测试失败: ' + error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                showResult('migrationResult', 'error', '迁移测试失败: ' + error.message);
+            }
+        }
+
+        // 清除测试数据
+        async function clearTestData() {
+            try {
+                await chrome.storage.local.remove('userSettings');
+                showResult('clearResult', 'success', '所有测试数据已清除');
+            } catch (error) {
+                showResult('clearResult', 'error', '清除失败: ' + error.message);
+            }
+        }
+
+        // 显示结果
+        function showResult(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // 页面加载时获取当前设置
+        window.addEventListener('load', getCurrentSettings);
+    </script>
+</body>
+</html>

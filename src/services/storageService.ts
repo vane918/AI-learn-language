@@ -8,7 +8,13 @@ import { LearningItem, UserSettings, ChromeStorageData } from '../types';
 // 默认用户设置
 const DEFAULT_SETTINGS: UserSettings = {
   aiProvider: 'openai',
-  apiKey: '',
+  apiKeys: {
+    openai: '',
+    deepseek: '',
+    gemini: '',
+    qwen: '',
+    'qwen-plus': ''
+  },
   language: 'zh',
   dailyReviewLimit: 50,
   enableNotifications: true
@@ -103,7 +109,38 @@ export async function deleteLearningItem(itemId: string): Promise<void> {
 export async function getUserSettings(): Promise<UserSettings> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.USER_SETTINGS);
-    return { ...DEFAULT_SETTINGS, ...result[STORAGE_KEYS.USER_SETTINGS] };
+    const storedSettings = result[STORAGE_KEYS.USER_SETTINGS];
+    
+    // 数据迁移：处理旧版本的 apiKey 字段
+    if (storedSettings && 'apiKey' in storedSettings && !storedSettings.apiKeys) {
+      const migratedSettings = {
+        ...DEFAULT_SETTINGS,
+        ...storedSettings,
+        apiKeys: {
+          openai: '',
+          deepseek: '',
+          gemini: '',
+          qwen: ''
+        }
+      };
+      
+      // 将旧的 apiKey 迁移到对应的提供商
+      if (storedSettings.apiKey) {
+        migratedSettings.apiKeys[storedSettings.aiProvider || 'openai'] = storedSettings.apiKey;
+      }
+      
+      // 删除旧的 apiKey 字段
+      delete (migratedSettings as any).apiKey;
+      
+      // 保存迁移后的设置
+      await chrome.storage.local.set({
+        [STORAGE_KEYS.USER_SETTINGS]: migratedSettings
+      });
+      
+      return migratedSettings;
+    }
+    
+    return { ...DEFAULT_SETTINGS, ...storedSettings };
   } catch (error) {
     console.error('Failed to get user settings:', error);
     return DEFAULT_SETTINGS;

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多句子划词翻译测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e7f3ff 100%);
+        }
+        .test-text {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .instruction {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .should-work {
+            background: #d4edda;
+            color: #155724;
+        }
+        .might-fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .length-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            padding: 5px 10px;
+            background: #f1f3f4;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .test-results {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 2px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 多句子划词翻译功能测试</h1>
+    <p><strong>测试目标：</strong>验证修复后的划词翻译功能是否支持多句子选择</p>
+    
+    <div class="instruction">
+        <strong>📋 测试说明：</strong><br>
+        1. 选择下面的文本后，应该在鼠标附近出现蓝色翻译图标 🌐<br>
+        2. 点击图标查看翻译结果<br>
+        3. 打开开发者工具控制台查看详细日志<br>
+        4. <span class="highlight">新的限制：文本长度 ≤ 500字符，支持中英文混合</span>
+    </div>
+
+    <div class="test-section">
+        <h2>1. 基础多句子测试 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>Artificial intelligence is transforming our world. It affects how we work, communicate, and live. The future holds even more exciting possibilities for human-AI collaboration.</strong>
+            <div class="length-info">长度: 171 字符 | 3个句子</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 长段落测试 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>The concept of sustainable development requires balancing economic growth with environmental protection. This approach ensures that future generations can meet their needs while preserving natural resources. Companies worldwide are adopting green technologies to achieve these goals.</strong>
+            <div class="length-info">长度: 312 字符 | 3个句子</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 接近限制的长文本 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>In the rapidly evolving landscape of technology, artificial intelligence has emerged as a transformative force that is reshaping industries, redefining human-machine interactions, and challenging our fundamental understanding of intelligence. Machine learning algorithms are becoming increasingly sophisticated, enabling computers to perform tasks that were once thought to be exclusively human domains.</strong>
+            <div class="length-info">长度: 487 字符 | 2个长句子</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 超过限制的文本 <span class="status might-fail">可能失败</span></h2>
+        <div class="test-text">
+            <strong>In the rapidly evolving landscape of technology, artificial intelligence has emerged as a transformative force that is reshaping industries, redefining human-machine interactions, and challenging our fundamental understanding of what it means to be intelligent in the digital age. Machine learning algorithms are becoming increasingly sophisticated, enabling computers to perform tasks that were once thought to be exclusively human domains. Deep learning networks can now recognize patterns, make predictions, and even generate creative content with remarkable accuracy and efficiency.</strong>
+            <div class="length-info">长度: 672 字符 | 3个长句子 | 超过500字符限制</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 中英文混合测试 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>人工智能 (Artificial Intelligence) 正在改变我们的世界。Machine learning 和 deep learning 技术让计算机能够学习和适应。The future of AI looks very promising for humanity.</strong>
+            <div class="length-info">长度: 156 字符 | 中英混合 | 3个句子</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. 包含特殊字符的文本 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>"Hello, world!" - this phrase is ubiquitous in programming. It's used in tutorials, documentation, and examples. Every programmer has written this at least once!</strong>
+            <div class="length-info">长度: 156 字符 | 包含引号、感叹号、连字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>7. 学术文本测试 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>The paradigm shift towards renewable energy sources represents a critical juncture in global environmental policy. Solar and wind technologies have achieved grid parity in many markets. This transition requires substantial investment in infrastructure and workforce development.</strong>
+            <div class="length-info">长度: 285 字符 | 学术语言 | 3个句子</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>8. 对话文本测试 <span class="status should-work">应该正常</span></h2>
+        <div class="test-text">
+            <strong>"How are you today?" she asked. "I'm doing well, thank you," he replied. "That's great to hear!" she responded with a smile.</strong>
+            <div class="length-info">长度: 127 字符 | 对话格式 | 3个句子</div>
+        </div>
+    </div>
+
+    <div class="test-results">
+        <h3>🧪 测试结果记录</h3>
+        <p><strong>预期结果：</strong></p>
+        <ul>
+            <li>✅ 测试1-3, 5-8：应该显示翻译图标</li>
+            <li>❌ 测试4：超过500字符限制，不应显示图标</li>
+        </ul>
+        <p><strong>如果某个测试没有按预期工作，请检查：</strong></p>
+        <ul>
+            <li>浏览器控制台的错误信息</li>
+            <li>Chrome扩展是否正确加载</li>
+            <li>是否需要刷新页面重新加载扩展</li>
+        </ul>
+    </div>
+
+    <script>
+        // 增强的测试脚本
+        let testResults = {};
+        
+        document.addEventListener('mouseup', function(event) {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const text = selection.toString().trim();
+                const testNumber = getTestNumber(event.target);
+                
+                console.log(`🧪 测试 ${testNumber} - 文本选择:`);
+                console.log('📏 长度:', text.length);
+                console.log('📝 内容:', text.substring(0, 100) + (text.length > 100 ? '...' : ''));
+                console.log('🔍 有效性检查 (/[\\w\\u4e00-\\u9fff]/.test):', /[\w\u4e00-\u9fff]/.test(text));
+                console.log('🔍 是否超过500字符:', text.length > 500);
+                
+                // 检查是否只包含标点符号
+                const cleanText = text.replace(/[\s\p{P}]/gu, '');
+                console.log('🔍 清理后长度:', cleanText.length);
+                console.log('🔍 是否只有标点符号:', cleanText.length === 0);
+                
+                // 记录测试结果
+                testResults[testNumber] = {
+                    length: text.length,
+                    shouldWork: text.length <= 500 && /[\w\u4e00-\u9fff]/.test(text) && cleanText.length > 0,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                
+                console.log('📊 测试结果汇总:', testResults);
+            }
+        });
+        
+        function getTestNumber(element) {
+            let current = element;
+            while (current && current !== document.body) {
+                if (current.classList && current.classList.contains('test-section')) {
+                    const h2 = current.querySelector('h2');
+                    if (h2) {
+                        const match = h2.textContent.match(/(\d+)\./);
+                        return match ? match[1] : 'unknown';
+                    }
+                }
+                current = current.parentElement;
+            }
+            return 'unknown';
+        }
+        
+        // 添加键盘快捷键显示测试结果
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'r') {
+                event.preventDefault();
+                console.log('📊 完整测试结果:', testResults);
+                alert('测试结果已输出到控制台，按F12查看');
+            }
+        });
+        
+        console.log('🚀 多句子划词翻译测试页面已加载');
+        console.log('💡 提示：按 Ctrl+R 查看测试结果汇总');
+    </script>
+</body>
+</html>

@@ -1,5 +1,33 @@
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="16" height="16" rx="3" fill="#1976d2"/>
-  <path d="M4 6h8v1H4V6zm0 2h8v1H4V8zm0 2h6v1H4v-1z" fill="white"/>
-  <circle cx="12" cy="4" r="2" fill="#ff9800"/>
+  <!-- 背景渐变 -->
+  <defs>
+    <linearGradient id="bgGradient16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 圆角背景 -->
+  <rect width="16" height="16" rx="3" fill="url(#bgGradient16)"/>
+  
+  <!-- 书本主体 -->
+  <rect x="2" y="4" width="12" height="8" rx="1" fill="white" stroke="#e0e0e0" stroke-width="0.2"/>
+  
+  <!-- 书本页面线条 -->
+  <line x1="4" y1="6" x2="10" y2="6" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  <line x1="4" y1="8" x2="12" y2="8" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  <line x1="4" y1="10" x2="11" y2="10" stroke="#667eea" stroke-width="0.5" stroke-linecap="round"/>
+  
+  <!-- 翻译箭头 -->
+  <circle cx="12" cy="6" r="2" fill="url(#aiGradient16)"/>
+  <path d="M11 5.5 L12 6 L11 6.5" stroke="white" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 5.5 L12 6 L13 6.5" stroke="white" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- AI标识 -->
+  <rect x="10" y="9" width="4" height="2" rx="1" fill="#4caf50"/>
+  <text x="12" y="10.2" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="1.2" font-weight="bold">AI</text>
 </svg>

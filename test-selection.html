@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>划词翻译测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-text {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .instruction {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #0066cc;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .length-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 划词翻译功能测试</h1>
+    <p>这个页面用于测试划词翻译功能，特别是多句子选择的情况。</p>
+
+    <div class="test-section">
+        <h2>1. 单词测试</h2>
+        <div class="instruction">请选择下面的单词，应该会出现翻译图标：</div>
+        <div class="test-text">
+            The word <strong>ubiquitous</strong> means existing everywhere.
+            <div class="length-info">单词 "ubiquitous" 长度: 10 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 短句测试</h2>
+        <div class="instruction">请选择下面的短句，应该会出现翻译图标：</div>
+        <div class="test-text">
+            <strong>Artificial intelligence is revolutionizing our world.</strong>
+            <div class="length-info">句子长度: 48 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 中等长度句子测试</h2>
+        <div class="instruction">请选择下面的句子，应该会出现翻译图标：</div>
+        <div class="test-text">
+            <strong>The concept of sustainable development requires balancing economic growth with environmental protection for future generations.</strong>
+            <div class="length-info">句子长度: 134 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 长句子测试（接近200字符限制）</h2>
+        <div class="instruction">请选择下面的长句子，应该会出现翻译图标：</div>
+        <div class="test-text">
+            <strong>In the rapidly evolving landscape of technology, artificial intelligence has emerged as a transformative force that is reshaping industries, redefining human-machine interactions.</strong>
+            <div class="length-info">句子长度: 194 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 超长句子测试（超过200字符）</h2>
+        <div class="instruction">请选择下面的超长句子，<strong style="color: red;">当前可能不会出现翻译图标</strong>：</div>
+        <div class="test-text">
+            <strong>In the rapidly evolving landscape of technology, artificial intelligence has emerged as a transformative force that is reshaping industries, redefining human-machine interactions, and challenging our fundamental understanding of what it means to be intelligent in the digital age.</strong>
+            <div class="length-info">句子长度: 287 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. 多句子段落测试</h2>
+        <div class="instruction">请选择下面的多个句子，<strong style="color: red;">当前可能不会出现翻译图标</strong>：</div>
+        <div class="test-text">
+            <strong>Artificial intelligence is transforming our world. It affects how we work, communicate, and live. The future holds even more exciting possibilities.</strong>
+            <div class="length-info">段落长度: 147 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>7. 包含标点符号的复杂文本</h2>
+        <div class="instruction">请选择下面包含各种标点符号的文本：</div>
+        <div class="test-text">
+            <strong>"Hello, world!" - this simple phrase has become ubiquitous in programming tutorials.</strong>
+            <div class="length-info">文本长度: 89 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>8. 混合语言文本</h2>
+        <div class="instruction">请选择下面的中英混合文本：</div>
+        <div class="test-text">
+            <strong>The concept of "人工智能" (artificial intelligence) is becoming increasingly important.</strong>
+            <div class="length-info">文本长度: 91 字符</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 测试结果记录</h2>
+        <div class="instruction">
+            <strong>测试说明：</strong><br>
+            1. 选择文本后，应该在鼠标附近出现蓝色的翻译图标 🌐<br>
+            2. 点击图标后，应该显示翻译卡片<br>
+            3. 如果某些文本选择后没有出现图标，说明存在问题<br>
+            4. 打开浏览器开发者工具的控制台，可以看到详细的调试信息
+        </div>
+    </div>
+
+    <script>
+        // 添加文本长度计算功能
+        document.addEventListener('mouseup', function() {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim()) {
+                const text = selection.toString().trim();
+                console.log('📏 选中文本长度:', text.length);
+                console.log('📝 选中文本内容:', text);
+                console.log('🔍 文本有效性检查 (/\\w/.test):', /\w/.test(text));
+                console.log('🔍 是否超过200字符:', text.length > 200);
+            }
+        });
+    </script>
+</body>
+</html>
