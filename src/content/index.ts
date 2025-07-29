@@ -48,14 +48,37 @@ async function sendMessageToBackground<T = any>(
   });
 }
 
-// 翻译文本
-async function translateText(text: string, context?: string) {
+// 翻译文本 - 支持取消
+async function translateText(text: string, context?: string, controller?: AbortController) {
   const message = {
     action: 'translate',
     data: { text, context }
   };
   
-  return sendMessageToBackground(message);
+  return new Promise<MessageResponse>((resolve, reject) => {
+    const messageWithId = {
+      ...message,
+      requestId: generateRequestId()
+    };
+
+    // 如果提供了 AbortController，监听取消信号
+    if (controller) {
+      controller.signal.addEventListener('abort', () => {
+        reject(new Error('Translation cancelled'));
+      });
+    }
+
+    chrome.runtime.sendMessage(messageWithId, (response) => {
+      if (chrome.runtime.lastError) {
+        resolve({
+          success: false,
+          error: chrome.runtime.lastError.message
+        });
+      } else {
+        resolve(response || { success: false, error: 'No response received' });
+      }
+    });
+  });
 }
 
 // 保存单词
@@ -81,6 +104,11 @@ let selectedText = '';
 let selectionRange: Range | null = null;
 let currentTranslationData: any = null;
 let ignoreNextClick = false;
+
+// 请求跟踪变量
+let currentRequestId: string | null = null;
+let translationTimeout: number | null = null;
+let currentTranslationController: AbortController | null = null;
 
 // 防抖定时器
 
@@ -145,8 +173,6 @@ function processTextSelection(event: MouseEvent) {
   }
   
   const text = selection.toString().trim();
-  console.log('📝 [processTextSelection] 选中的文本:', `"${text}"`);
-  console.log('📏 [processTextSelection] 文本长度:', text.length);
   
   // 验证文本有效性
   if (!text || text.length === 0) {
@@ -183,7 +209,6 @@ function processTextSelection(event: MouseEvent) {
   ignoreNextClick = true;
   
   console.log('✅ [processTextSelection] 文本选择有效，准备显示翻译图标');
-  console.log('📍 [processTextSelection] 选择范围:', selectionRange.toString());
   
   // 隐藏之前的卡片，显示翻译图标
   setTimeout(() => {
@@ -197,8 +222,6 @@ function processTextSelection(event: MouseEvent) {
 // 显示翻译图标
 function showTranslationIcon(event: MouseEvent) {
   console.log('🌟 [showTranslationIcon] 被调用');
-  console.log('🔍 [showTranslationIcon] 当前 selectedText:', selectedText);
-  console.log('🔍 [showTranslationIcon] 事件坐标:', event.pageX, event.pageY);
   
   // 先隐藏之前的图标
   hideTranslationIcon();
@@ -321,7 +344,6 @@ async function handleIconClick(event: Event) {
   
   console.log('🔍 [handleIconClick] 事件传播已阻止');
   
-  console.log('📝 [handleIconClick] 当前选中文本:', selectedText);
   if (!selectedText) {
     console.log('❌ [handleIconClick] 没有选中文本，退出');
     return;
@@ -384,6 +406,24 @@ async function showTranslationCard() {
       return;
     }
     
+    // 取消之前的翻译请求
+    if (currentTranslationController) {
+      console.log('🚫 [showTranslationCard] 取消之前的翻译请求');
+      currentTranslationController.abort();
+    }
+    
+    // 清理之前的超时定时器
+    if (translationTimeout) {
+      clearTimeout(translationTimeout);
+      translationTimeout = null;
+    }
+    
+    // 生成新的请求ID和控制器
+    currentRequestId = generateRequestId();
+    currentTranslationController = new AbortController();
+    
+    console.log('🆔 [showTranslationCard] 新请求ID:', currentRequestId);
+    
     if (!translationCard) {
       createTranslationCard();
     }
@@ -395,20 +435,48 @@ async function showTranslationCard() {
     translationCard.style.display = 'block';
     isCardVisible = true;
     
-    const context = getTextContext(selectedText);
-    const initialResult = await translateText(selectedText, context);
+    // 设置超时机制
+    translationTimeout = window.setTimeout(() => {
+      if (currentRequestId) {
+        console.log('⏰ [showTranslationCard] 翻译超时，显示测试数据');
+        const mockData = generateMockTranslationData(selectedText);
+        handleTranslationComplete(mockData);
+        
+        // 清理状态
+        if (currentTranslationController) {
+          currentTranslationController.abort();
+          currentTranslationController = null;
+        }
+        currentRequestId = null;
+        translationTimeout = null;
+      }
+    }, 30000); // 30秒超时
     
-    if (initialResult.success && initialResult.data?.streaming) {
-      pendingChunks = '';
-      // 等待流式更新
-    } else if (initialResult.success && initialResult.data) {
-      currentTranslationData = initialResult.data;
-      handleTranslationComplete(initialResult.data);
-    } else {
-      // 如果翻译失败，显示模拟的富文本数据用于测试
-      console.log('🧪 [showTranslationCard] 翻译失败，显示测试数据');
-      const mockData = generateMockTranslationData(selectedText);
-      handleTranslationComplete(mockData);
+    const context = getTextContext(selectedText);
+    
+    try {
+      const initialResult = await translateText(selectedText, context, currentTranslationController);
+
+      console.log('🎯 [showTranslationCard] initialResult:', initialResult.success);
+      
+      if (initialResult.success && initialResult.data?.streaming) {
+        pendingChunks = '';
+        // 等待流式更新
+      } else if (initialResult.success && initialResult.data) {
+        currentTranslationData = initialResult.data;
+        handleTranslationComplete(initialResult.data);
+      } else {
+        // 如果翻译失败，显示模拟的富文本数据用于测试
+        console.log('🧪 [showTranslationCard] 翻译失败，显示测试数据');
+        const mockData = generateMockTranslationData(selectedText);
+        handleTranslationComplete(mockData);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Translation cancelled') {
+        console.log('🚫 [showTranslationCard] 翻译被取消');
+        return;
+      }
+      throw error;
     }
   } catch (error) {
     console.error('Translation error:', error);
@@ -500,10 +568,25 @@ function handleTranslationChunk(chunk: StreamTranslationChunk) {
 }
 
 function handleTranslationComplete(data: AITranslationResponse) {
+  console.log('🔍 handleTranslationComplete - 开始处理');
+  
+  // 取消正在进行的翻译请求
+  if (currentTranslationController) {
+    console.log('🚫 [handleTranslationComplete] 翻译完成，取消正在进行的翻译请求');
+    currentTranslationController.abort();
+    currentTranslationController = null;
+  }
+  
+  // 清理超时定时器
+  if (translationTimeout) {
+    clearTimeout(translationTimeout);
+    translationTimeout = null;
+  }
+  
+  // 清理请求ID
+  currentRequestId = null;
+  
   currentTranslationData = data;
-  console.log('🔍 handleTranslationComplete - data type:', typeof data);
-  console.log('🔍 handleTranslationComplete - data:', data);
-  console.log('🔍 handleTranslationComplete - data.translation:', data.translation);
   
   // 如果data是字符串，尝试解析为JSON
   if (typeof data === 'string') {
@@ -1089,7 +1172,6 @@ function positionCardBySelection() {
 
 // 更新卡片内容
 function updateCardContent(content: string, isLoading: boolean) {
-  console.log('🔍 updateCardContent:', content);
   console.log('🔍 isLoading:', isLoading);
   if (!translationCard) return;
   
@@ -1122,6 +1204,22 @@ function hideTranslationCard() {
   console.log('🔍 [hideTranslationCard] 当前 isCardVisible:', isCardVisible);
   console.log('🔍 [hideTranslationCard] translationCard 存在:', !!translationCard);
   
+  // 取消正在进行的翻译请求
+  if (currentTranslationController) {
+    console.log('🚫 [hideTranslationCard] 取消正在进行的翻译请求');
+    currentTranslationController.abort();
+    currentTranslationController = null;
+  }
+  
+  // 清理超时定时器
+  if (translationTimeout) {
+    clearTimeout(translationTimeout);
+    translationTimeout = null;
+  }
+  
+  // 清理请求ID
+  currentRequestId = null;
+  
   if (translationCard) {
     console.log('🔍 [hideTranslationCard] 设置 display: none');
     translationCard.style.display = 'none';
@@ -1135,9 +1233,24 @@ function hideTranslationCard() {
 // 完全清空选择状态
 function clearSelection() {
   console.log('🧹 [clearSelection] 开始清空选择状态');
-  console.log('🔍 [clearSelection] 当前状态 - selectedText:', selectedText);
   console.log('🔍 [clearSelection] 当前状态 - isCardVisible:', isCardVisible);
   console.log('🔍 [clearSelection] 当前状态 - selectionRange:', !!selectionRange);
+  
+  // 取消正在进行的翻译请求
+  if (currentTranslationController) {
+    console.log('🚫 [clearSelection] 取消正在进行的翻译请求');
+    currentTranslationController.abort();
+    currentTranslationController = null;
+  }
+  
+  // 清理超时定时器
+  if (translationTimeout) {
+    clearTimeout(translationTimeout);
+    translationTimeout = null;
+  }
+  
+  // 清理请求ID
+  currentRequestId = null;
   
   selectedText = '';
   selectionRange = null;
@@ -1254,7 +1367,6 @@ async function handleSaveWord() {
 // 朗读单词
 function handleSpeak() {
   console.log('🔊 [handleSpeak] 播放按钮被点击');
-  console.log('🔊 [handleSpeak] 当前选中文本:', selectedText);
   
   if (!selectedText) {
     console.log('❌ [handleSpeak] 没有选中文本，无法播放');
